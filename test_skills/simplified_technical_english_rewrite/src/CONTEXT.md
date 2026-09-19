@@ -13,6 +13,7 @@ The scoring script of the Simplified Technical English rewrite test: for each te
 ## Rules
 - The harness and its model come from `test_skills/_shared/src/` — see its CONTEXT.md. The judge uses the same harness and the same fixed model as the rewrite.
 - The judge runs in a folder with no skill, so that it never loads the skill that it judges.
+- The judge accepts each replacement of a refused word that the house style asks for, such as "can" for "might". Without this, `refused_words` and `meaning_kept` contradict each other, and no version can obey both.
 - Code in a code span or a code block is never checked, because it holds names, not prose.
 - The rewrite is the content of the first fenced code block of the last answer, or else the whole last answer.
 - The score is the percentage of rule checks that pass: five rules for each test case.

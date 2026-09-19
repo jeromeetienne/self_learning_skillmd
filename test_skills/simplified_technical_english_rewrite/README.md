@@ -16,7 +16,7 @@ Five rules are checked on each rewrite. Code checks the first four, and a judge 
 | `no_abbreviation` | it has no word of two or more capital letters, such as `API`, no abbreviation with a period, such as `e.g.`, no short form of a word, such as `repo` or `config`, and no contraction, such as `don't` or `it's` |
 | `no_you` | it never speaks to the reader with `you` or `your`: an instruction uses the imperative, such as "Restart the server", and a description uses a thing as its subject, such as "The server restarts" |
 | `refused_words` | it has no word of the house list of refused words, such as `ensure`, `via`, `might`, `should`, or `in order to` |
-| `meaning_kept` | the judge says that it keeps every fact, number, condition, and instruction of the paragraph, and adds no fact |
+| `meaning_kept` | the judge says that it keeps every fact, number, condition, and instruction of the paragraph, and adds no fact. The judge accepts the replacements of the house style, such as "can" for "might", "must" or "we recommend" for "should", and "about" for "approximately" |
 
 Code in a code span or a code block is never checked. The house list of refused words is `REFUSED_WORDS` in `src/simplified_technical_english_rewrite_rules.ts`.
 
