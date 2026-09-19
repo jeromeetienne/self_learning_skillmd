@@ -10,9 +10,6 @@ import type { HarnessName, SkillChoice } from './skill_choice_types.js';
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-/** Finds the skill name in any path that ends with `skills/<skill name>/SKILL.md`. */
-const SKILL_FILE_PATH_REGEXP = /skills\/([a-z0-9-]+)\/SKILL\.md/;
-
 /** The number of tool calls without a skill after which the harness is stopped, and no skill is recorded. */
 const TOOL_CALL_COUNT_BEFORE_NO_SKILL = 3;
 
@@ -70,9 +67,10 @@ const ClaudeResultEventSchema = z.object({
 
 /**
  * Runs `claude` or `codex` on one user message in a working folder, and stops the harness as soon as the choice of
- * skill is known. The choice is known at the first tool call that loads a skill. After
- * `TOOL_CALL_COUNT_BEFORE_NO_SKILL` tool calls with no skill, or when the harness ends its turn, the choice is no
- * skill.
+ * skill is known. The choice is known at the first tool call that names a path of a test skill under a `skills/`
+ * folder, at any depth. A skill that is not a test skill, such as a skill of the user, is not a choice. After
+ * `TOOL_CALL_COUNT_BEFORE_NO_SKILL` tool calls with no test skill, or when the harness ends its turn, the choice is
+ * no skill.
  */
 export class SkillChoiceHarness {
 	/**
@@ -83,13 +81,15 @@ export class SkillChoiceHarness {
 	 * @param options.workingFolderPath The folder that holds `.claude/skills` and `.agents/skills`, where the
 	 * harness runs.
 	 * @param options.userMessage The message that the user sends to the harness.
+	 * @param options.skillNames The names of the test skills, the only skills that count as a choice.
 	 * @param options.timeoutMilliseconds The time after which the harness is stopped and an error is recorded.
 	 * @returns The choice of skill.
 	 */
-	static async chooseSkill({ harnessName, workingFolderPath, userMessage, timeoutMilliseconds }: {
+	static async chooseSkill({ harnessName, workingFolderPath, userMessage, skillNames, timeoutMilliseconds }: {
 		harnessName: HarnessName,
 		workingFolderPath: string,
 		userMessage: string,
+		skillNames: string[],
 		timeoutMilliseconds: number,
 	}): Promise<SkillChoice> {
 		const { command, commandArguments } = SkillChoiceHarness._buildCommand(harnessName, userMessage);
@@ -119,7 +119,7 @@ export class SkillChoiceHarness {
 				input: childProcess.stdout,
 			});
 			lineReader.on('line', (line) => {
-				const observations = SkillChoiceHarness._readLine(harnessName, line);
+				const observations = SkillChoiceHarness._readLine(harnessName, line, skillNames);
 				for (const observation of observations) {
 					evidenceLines.push(observation.evidence);
 					if (observation.kind === 'failure') {
@@ -238,9 +238,10 @@ export class SkillChoiceHarness {
 	 *
 	 * @param harnessName The harness that wrote the line.
 	 * @param line One line of the output.
+	 * @param skillNames The names of the test skills.
 	 * @returns The observations of the line, empty when the line does not matter for the choice.
 	 */
-	static _readLine(harnessName: HarnessName, line: string): HarnessObservation[] {
+	static _readLine(harnessName: HarnessName, line: string, skillNames: string[]): HarnessObservation[] {
 		let event: unknown;
 		try {
 			event = JSON.parse(line);
@@ -248,9 +249,9 @@ export class SkillChoiceHarness {
 			return [];
 		}
 		if (harnessName === 'claude') {
-			return SkillChoiceHarness._readClaudeEvent(event);
+			return SkillChoiceHarness._readClaudeEvent(event, skillNames);
 		}
-		return SkillChoiceHarness._readCodexEvent(event);
+		return SkillChoiceHarness._readCodexEvent(event, skillNames);
 	}
 
 	/**
@@ -258,16 +259,17 @@ export class SkillChoiceHarness {
 	 * reads the `SKILL.md` file.
 	 *
 	 * @param event One parsed line of the output.
+	 * @param skillNames The names of the test skills.
 	 * @returns The observations of the event.
 	 */
-	static _readCodexEvent(event: unknown): HarnessObservation[] {
+	static _readCodexEvent(event: unknown, skillNames: string[]): HarnessObservation[] {
 		const commandStarted = CodexCommandStartedEventSchema.safeParse(event);
 		if (commandStarted.success === true) {
 			const command = commandStarted.data.item.command;
 			return [
 				{
 					kind: 'tool_call',
-					skillName: SkillChoiceHarness._findSkillName(command),
+					skillName: SkillChoiceHarness._findSkillName(command, skillNames),
 					evidence: `command: ${command}`,
 				},
 			];
@@ -305,9 +307,10 @@ export class SkillChoiceHarness {
 	 * tool, or reads the `SKILL.md` file with another tool.
 	 *
 	 * @param event One parsed line of the output.
+	 * @param skillNames The names of the test skills.
 	 * @returns The observations of the event.
 	 */
-	static _readClaudeEvent(event: unknown): HarnessObservation[] {
+	static _readClaudeEvent(event: unknown, skillNames: string[]): HarnessObservation[] {
 		const assistantEvent = ClaudeAssistantEventSchema.safeParse(event);
 		if (assistantEvent.success === true) {
 			const observations: HarnessObservation[] = [];
@@ -317,10 +320,11 @@ export class SkillChoiceHarness {
 					continue;
 				}
 				const inputText = JSON.stringify(toolUse.data.input);
-				let skillName = SkillChoiceHarness._findSkillName(inputText);
+				let skillName = SkillChoiceHarness._findSkillName(inputText, skillNames);
 				const skillInput = toolUse.data.input.skill;
 				if (toolUse.data.name === 'Skill' && typeof skillInput === 'string') {
-					skillName = skillInput.split(':').pop() ?? skillInput;
+					const skillToolName = skillInput.split(':').pop() ?? skillInput;
+					skillName = skillNames.includes(skillToolName) ? skillToolName : null;
 				}
 				observations.push({
 					kind: 'tool_call',
@@ -354,16 +358,24 @@ export class SkillChoiceHarness {
 	}
 
 	/**
-	 * Finds the skill that a command or a tool input loads.
+	 * Finds the first test skill that a command or a tool input names in a path under a `skills/` folder, at any
+	 * depth, such as `.agents/skills/release-notes/SKILL.md` or `~/.codex/skills/r2/release-notes`.
 	 *
 	 * @param text The command or the tool input.
-	 * @returns The skill name, or `null` when the text reads no `SKILL.md` file.
+	 * @param skillNames The names of the test skills.
+	 * @returns The skill name that comes first in the text, or `null` when the text names no test skill.
 	 */
-	static _findSkillName(text: string): string | null {
-		const match = SKILL_FILE_PATH_REGEXP.exec(text);
-		if (match === null) {
-			return null;
+	static _findSkillName(text: string, skillNames: string[]): string | null {
+		let firstSkillName: string | null = null;
+		let firstIndex = Number.POSITIVE_INFINITY;
+		for (const skillName of skillNames) {
+			const skillPathRegExp = new RegExp(`skills/(?:[^\\s'"]*/)?${skillName}(?=[/\\s'"\\\\]|$)`);
+			const match = skillPathRegExp.exec(text);
+			if (match !== null && match.index < firstIndex) {
+				firstIndex = match.index;
+				firstSkillName = skillName;
+			}
 		}
-		return match[1] ?? null;
+		return firstSkillName;
 	}
 }

@@ -1,7 +1,7 @@
 import Fs from 'node:fs';
-import Os from 'node:os';
 import Path from 'node:path';
 import { SkillChoiceHarness } from './skill_choice_harness.js';
+import { SkillChoiceWorkingFolder } from './skill_choice_working_folder.js';
 import { HARNESS_MODEL_NAMES, SkillChoiceTestCaseFileSchema } from './skill_choice_types.js';
 import type {
 	HarnessName,
@@ -72,11 +72,17 @@ export class SkillChoiceScore {
 			Path.join(skillsFolderPath, testCaseFile.target_skill_name, 'SKILL.md'),
 		);
 
-		const workingFolderPath = SkillChoiceScore._createWorkingFolder(skillsFolderPath);
+		const skillNames = SkillChoiceScore._readSkillNames(skillsFolderPath);
+		const workingFolderPath = SkillChoiceWorkingFolder.create(skillsFolderPath);
 		let testCaseResults: SkillChoiceTestCaseResult[];
 		try {
 			testCaseResults = await SkillChoiceScore._mapWithConcurrency(testCases, concurrency, async (testCase) => {
-				const testCaseResult = await SkillChoiceScore._runTestCase(harnessName, workingFolderPath, testCase);
+				const testCaseResult = await SkillChoiceScore._runTestCase(
+					harnessName,
+					workingFolderPath,
+					skillNames,
+					testCase,
+				);
 				onTestCaseResult(testCaseResult);
 				return testCaseResult;
 			});
@@ -116,12 +122,14 @@ export class SkillChoiceScore {
 	 *
 	 * @param harnessName The harness that chooses the skill.
 	 * @param workingFolderPath The temporary folder that holds the copies of the skills.
+	 * @param skillNames The names of the test skills.
 	 * @param testCase The test case.
 	 * @returns The result of the test case.
 	 */
 	static async _runTestCase(
 		harnessName: HarnessName,
 		workingFolderPath: string,
+		skillNames: string[],
 		testCase: SkillChoiceTestCase,
 	): Promise<SkillChoiceTestCaseResult> {
 		const startTime = Date.now();
@@ -129,6 +137,7 @@ export class SkillChoiceScore {
 			harnessName: harnessName,
 			workingFolderPath: workingFolderPath,
 			userMessage: testCase.user_message,
+			skillNames: skillNames,
 			timeoutMilliseconds: TIMEOUT_MILLISECONDS,
 		});
 		const testCaseResult: SkillChoiceTestCaseResult = {
@@ -147,21 +156,16 @@ export class SkillChoiceScore {
 	}
 
 	/**
-	 * Creates a temporary folder outside the repository, with a copy of the skills in `.claude/skills` for Claude
-	 * Code and in `.agents/skills` for Codex. The folder is outside the repository, so that the harness can never
-	 * read `test_cases.json`.
+	 * Reads the names of the test skills: each folder of the skills folder that holds a `SKILL.md` file.
 	 *
 	 * @param skillsFolderPath The folder that holds one folder for each skill.
-	 * @returns The path of the temporary folder.
+	 * @returns The names of the test skills.
 	 */
-	static _createWorkingFolder(skillsFolderPath: string): string {
-		const workingFolderPath = Fs.mkdtempSync(Path.join(Os.tmpdir(), 'skill_choice_'));
-		for (const harnessFolderName of ['.claude', '.agents']) {
-			Fs.cpSync(skillsFolderPath, Path.join(workingFolderPath, harnessFolderName, 'skills'), {
-				recursive: true,
-			});
-		}
-		return workingFolderPath;
+	static _readSkillNames(skillsFolderPath: string): string[] {
+		const skillNames = Fs.readdirSync(skillsFolderPath).filter((entryName) => {
+			return Fs.existsSync(Path.join(skillsFolderPath, entryName, 'SKILL.md'));
+		});
+		return skillNames;
 	}
 
 	/**
