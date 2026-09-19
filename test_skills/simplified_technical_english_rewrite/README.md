@@ -54,4 +54,9 @@ Start `claude` or `codex` in `playground/`. That folder holds only the links `.c
 
 ## Results
 
-No run yet.
+| Date | Harness | Split | Score | Commit |
+|---|---|---|---|---|
+| 2026-09-19 | codex | `optimization` | 57 of 75 rule checks (76 percent) | [0d3f77e](https://github.com/jeromeetienne/skillmd_opro/commit/0d3f77e) |
+
+- `no_contraction` passed on all 15 test cases, so it teaches nothing to OPRO.
+- The 4 refusals of the judge were real changes of meaning, such as "you can try" rewritten as an order.
