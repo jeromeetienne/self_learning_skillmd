@@ -62,7 +62,37 @@ The `claude` harness must run in a terminal of the user, because a Claude Code d
 
 ## Watch it live
 
-Start `claude` or `codex` in `playground/`. That folder holds only the links `.claude` and `.agents` to `dotagents_folder/`. An agent in `playground/` can read `../test_cases.json`, so use `playground/` only to watch the skills, never to score them.
+`playground/` holds only the links `.claude` and `.agents` to `dotagents_folder/`, so a harness started there finds the five skills of this test. An agent in `playground/` can read `../test_cases.json`, so use `playground/` only to watch the skills, never to score them.
+
+Start Codex, from the root of the repository:
+
+```bash
+cd test_skills/skill_choice/playground && codex --model gpt-5.6-luna
+```
+
+Or start Claude Code:
+
+```bash
+cd test_skills/skill_choice/playground && claude --model claude-sonnet-5
+```
+
+Type one message, and look at the first thing that the harness does:
+
+- Codex reads the skill with a shell command, such as `sed -n '1,200p' .agents/skills/release-notes/SKILL.md`.
+- Claude Code calls its skill tool, shown as `Skill(release-notes)`.
+
+| Message to type | Expected skill |
+|---|---|
+| Write the release notes for version 2.0, for the people who use the product. | `release-notes` |
+| What changed for our users between v1.0.0 and v1.1.0? Write it for the download page. | `release-notes` |
+| Add a line to CHANGELOG.md for the fix of the date parser. | `changelog-entry` |
+| Write the title and the description of the pull request for this branch. | `pull-request-description` |
+| Write a short Bluesky post that announces version 2.0. | `announcement-post` |
+| The format of the settings file changes in version 2.0. Write the steps that a user must follow to upgrade. | `migration-guide` |
+| What is the capital of France? | no skill: the harness answers "Paris" |
+| Explain what a git tag is. | no skill: the harness answers directly |
+
+With the weak description of `release-notes`, the two `release-notes` messages are the ones most likely to go wrong: the harness can choose `changelog-entry`, or no skill. This repository has no git tag, so after the choice, the skill finds no version to compare. Stop the harness after the choice.
 
 ## Results
 

@@ -63,7 +63,33 @@ The `claude` harness must run in a terminal of the user, because a Claude Code d
 
 ## Watch it live
 
-Start `claude` or `codex` in `playground/`. That folder holds only the links `.claude` and `.agents` to `dotagents_folder/`, and has no staged change, so stage a change of your own in another project, or use `playground/` only to see that the harness finds the skill.
+The skill needs staged changes in a git repository. `playground/` is inside this repository, so `git diff --staged` there shows the staged changes of this repository. To watch the skill on the base project instead, as the score does, create a copy of it in a temporary folder, from the root of the repository:
+
+```bash
+PLAYGROUND_FOLDER=$(mktemp -d) && cp -R test_skills/commit_message/base_project/. "$PLAYGROUND_FOLDER" && ln -s "$PWD/test_skills/commit_message/dotagents_folder" "$PLAYGROUND_FOLDER/.agents" && ln -s "$PWD/test_skills/commit_message/dotagents_folder" "$PLAYGROUND_FOLDER/.claude" && cd "$PLAYGROUND_FOLDER" && git init --quiet && printf '.agents\n.claude\n' >> .git/info/exclude && git add --all && git commit --quiet --message 'Create todo-cli' && git switch --quiet --create docs/41-clear-command && printf '    todo clear\n' >> README.md && git add README.md
+```
+
+This creates the branch `docs/41-clear-command`, with one staged line in `README.md`. Then start Codex in that folder:
+
+```bash
+codex --model gpt-5.6-luna --sandbox read-only
+```
+
+Or start Claude Code:
+
+```bash
+claude --model claude-sonnet-5
+```
+
+The harness reads `.agents/skills/commit-message/SKILL.md` (Codex) or calls `Skill(commit-message)` (Claude Code), then runs `git diff --staged`. The weak skill names no rule, so the answer usually breaks some of them. The "Answer that obeys every rule" column shows what OPRO must teach the skill to write.
+
+| Message to type | Answer that obeys every rule |
+|---|---|
+| Write the commit message for the staged changes. Do not commit. | `docs: add the clear command to the usage, #41`<br>(blank line)<br>`Why: the README did not show the clear command.` |
+| Write the commit message for the staged changes. This fixes issue #41. Do not commit. | `docs: add the clear command to the usage, #41`<br>(blank line)<br>`Why: the README did not show the clear command.`<br>(blank line)<br>`fixes #41` |
+| Write the commit message for the staged changes. This is only the first part of #41, so the issue stays open. Do not commit. | the same as the first answer, with no `fixes`, `closes`, or `resolves` |
+
+A typical answer of the weak skill is `Document the clear command in the README`: it has no type, no `, #41` at the end of the first line, and no `Why:` line. The first message does not give the issue number, so the harness must find `41` in the branch name.
 
 ## Results
 

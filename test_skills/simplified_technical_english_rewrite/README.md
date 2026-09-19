@@ -50,7 +50,30 @@ The `claude` harness must run in a terminal of the user, because a Claude Code d
 
 ## Watch it live
 
-Start `claude` or `codex` in `playground/`. That folder holds only the links `.claude` and `.agents` to `dotagents_folder/`. Ask the harness to rewrite a paragraph in Simplified Technical English.
+`playground/` holds only the links `.claude` and `.agents` to `dotagents_folder/`, so a harness started there finds the skill of this test.
+
+Start Codex, from the root of the repository:
+
+```bash
+cd test_skills/simplified_technical_english_rewrite/playground && codex --model gpt-5.6-luna --sandbox read-only
+```
+
+Or start Claude Code:
+
+```bash
+cd test_skills/simplified_technical_english_rewrite/playground && claude --model claude-sonnet-5
+```
+
+The harness reads `.agents/skills/simplified-technical-english-rewrite/SKILL.md` (Codex) or calls `Skill(simplified-technical-english-rewrite)` (Claude Code), then answers with the rewrite. The weak skill names no rule, so the answer usually keeps some abbreviations and refused words. The "Answer that obeys every rule" column shows what OPRO must teach the skill to write.
+
+| Message to type | Answer that obeys every rule |
+|---|---|
+| Rewrite in Simplified Technical English: You'll need to restart the app after you change the config, otherwise the new values won't be loaded. | Restart the application after you change the configuration. If you do not restart the application, it does not load the new values. |
+| Rewrite in Simplified Technical English: Please ensure that the DB is backed up prior to running the migration script. | Make a backup of the database before you run the migration script. |
+| Rewrite in Simplified Technical English: The API might return a 500 error if the request body is larger than approx. 1 MB. | The application programming interface can return the error 500 when the request body is larger than about 1 megabyte. |
+| Rewrite in Simplified Technical English: In order to reduce the build time, the CI pipeline caches the deps between runs, but you should clear the cache via the dashboard if a dep is updated. | To make the build faster, the continuous integration pipeline keeps the dependencies between runs. When a dependency changes, clear this cache on the dashboard. |
+
+Each answer that obeys every rule has no sentence longer than 20 words, no abbreviation such as `API`, `DB`, `CI`, `MB`, `app`, or `deps`, no contraction, and no refused word such as `ensure`, `prior`, `might`, `should`, `via`, or `in order to`. Each answer also keeps every fact, which the judge checks.
 
 ## Results
 
