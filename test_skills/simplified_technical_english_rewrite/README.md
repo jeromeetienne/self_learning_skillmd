@@ -80,6 +80,9 @@ Each answer that obeys every rule has no sentence longer than 20 words, no abbre
 | Date | Harness | Split | Score | Commit |
 |---|---|---|---|---|
 | 2026-09-19 | codex | `optimization` | 57 of 75 rule checks (76 percent) | [0d3f77e](https://github.com/jeromeetienne/skillmd_opro/commit/0d3f77e) |
+| 2026-09-19 | codex | `optimization` | 51 of 75 rule checks (68 percent) | [d060cc5](https://github.com/jeromeetienne/skillmd_opro/commit/d060cc5) |
 
 - `no_contraction` passed on all 15 test cases, so it taught nothing to OPRO. After this run, `no_you` replaced it, and the contractions moved into `no_abbreviation`.
 - The 4 refusals of the judge were real changes of meaning, such as "you can try" rewritten as an order.
+- With `no_you`, the second run scored 68 percent, and `no_you` passed on only 6 of 15 test cases.
+- `refused_words` passed on 12 of 15 test cases in the first run, and on 14 of 15 in the second run, with no change to the rule, so one run is noisy.
