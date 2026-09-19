@@ -1,0 +1,245 @@
+{
+	"target_skill_name": "release-notes",
+	"test_cases": [
+		{
+			"id": "release_notes_01",
+			"user_message": "Write the release notes for v2.4.0.",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_02",
+			"user_message": "We ship 3.1 on Friday. Write the \"What's new\" text for our users, from the commits since the 3.0 tag.",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_03",
+			"user_message": "can you summarize what changed between v1.8.2 and v1.9.0 for our customers? no internal stuff",
+			"expected_skill_name": "release-notes",
+			"split": "final_check"
+		},
+		{
+			"id": "release_notes_04",
+			"user_message": "Prepare the notes that go with the 5.0 release on the GitHub Releases page.",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_05",
+			"user_message": "Our support team needs a plain-language list of what is new and what was fixed in version 2.2, to send to customers.",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_06",
+			"user_message": "draft the app store \"What's New\" text for build 4.7",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_07",
+			"user_message": "Tell our users what changed in the last release. Group it into new features and bug fixes.",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_08",
+			"user_message": "Go through the tags and write up what users get in 0.9.0 compared with 0.8.0.",
+			"expected_skill_name": "release-notes",
+			"split": "final_check"
+		},
+		{
+			"id": "release_notes_09",
+			"user_message": "I need the notes for the 1.12 release, for the documentation site.",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_10",
+			"user_message": "Summarize the changes that users can see since the last tag, for the version 6.3 email to customers.",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_11",
+			"user_message": "release notes please, v10.1.0 compared with v10.0.0",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_12",
+			"user_message": "Write what is new in this version for the people who use the command line tool. Leave out the refactoring.",
+			"expected_skill_name": "release-notes",
+			"split": "final_check"
+		},
+		{
+			"id": "release_notes_13",
+			"user_message": "Our customers ask what changed in 2.0. Write a summary of the new features, the changes, and the fixes, from the git history.",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_14",
+			"user_message": "Create the release notes for the upcoming 4.0.0 tag.",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "release_notes_15",
+			"user_message": "Explain to end users, in simple words, what this new version adds and fixes.",
+			"expected_skill_name": "release-notes",
+			"split": "final_check"
+		},
+		{
+			"id": "release_notes_16",
+			"user_message": "Produce the notes for version 7.2 that we publish next to the download link.",
+			"expected_skill_name": "release-notes",
+			"split": "optimization"
+		},
+		{
+			"id": "changelog_entry_01",
+			"user_message": "Add the fix for the login timeout to CHANGELOG.md.",
+			"expected_skill_name": "changelog-entry",
+			"split": "optimization"
+		},
+		{
+			"id": "changelog_entry_02",
+			"user_message": "Record this change in the changelog under Unreleased.",
+			"expected_skill_name": "changelog-entry",
+			"split": "optimization"
+		},
+		{
+			"id": "changelog_entry_03",
+			"user_message": "update the changelog for pull request #212, it adds dark mode",
+			"expected_skill_name": "changelog-entry",
+			"split": "optimization"
+		},
+		{
+			"id": "changelog_entry_04",
+			"user_message": "Put an entry in CHANGELOG.md: we removed support for Node.js 16.",
+			"expected_skill_name": "changelog-entry",
+			"split": "final_check"
+		},
+		{
+			"id": "pull_request_description_01",
+			"user_message": "Write the description for my pull request.",
+			"expected_skill_name": "pull-request-description",
+			"split": "optimization"
+		},
+		{
+			"id": "pull_request_description_02",
+			"user_message": "Summarize this branch for the reviewers, with how to test it.",
+			"expected_skill_name": "pull-request-description",
+			"split": "optimization"
+		},
+		{
+			"id": "pull_request_description_03",
+			"user_message": "Give me a title and a body for the pull request of this branch.",
+			"expected_skill_name": "pull-request-description",
+			"split": "optimization"
+		},
+		{
+			"id": "pull_request_description_04",
+			"user_message": "I am about to open a pull request. Explain what the commits on this branch change and why.",
+			"expected_skill_name": "pull-request-description",
+			"split": "final_check"
+		},
+		{
+			"id": "announcement_post_01",
+			"user_message": "Write a tweet that announces version 3.0.",
+			"expected_skill_name": "announcement-post",
+			"split": "optimization"
+		},
+		{
+			"id": "announcement_post_02",
+			"user_message": "Draft a LinkedIn post about our launch today.",
+			"expected_skill_name": "announcement-post",
+			"split": "optimization"
+		},
+		{
+			"id": "announcement_post_03",
+			"user_message": "We just shipped offline mode. Write a short Bluesky post about it.",
+			"expected_skill_name": "announcement-post",
+			"split": "optimization"
+		},
+		{
+			"id": "announcement_post_04",
+			"user_message": "Write a public announcement of the 2.0 launch for social media.",
+			"expected_skill_name": "announcement-post",
+			"split": "final_check"
+		},
+		{
+			"id": "migration_guide_01",
+			"user_message": "Write a migration guide from v1 to v2.",
+			"expected_skill_name": "migration-guide",
+			"split": "optimization"
+		},
+		{
+			"id": "migration_guide_02",
+			"user_message": "Version 4 renames the configuration keys. Explain to users the exact steps to upgrade their code.",
+			"expected_skill_name": "migration-guide",
+			"split": "optimization"
+		},
+		{
+			"id": "migration_guide_03",
+			"user_message": "How do our users move from the old authentication API to the new one in 5.0? Write the upgrade instructions.",
+			"expected_skill_name": "migration-guide",
+			"split": "optimization"
+		},
+		{
+			"id": "migration_guide_04",
+			"user_message": "Document the breaking changes in 3.0, and show the old code and the new code for each one.",
+			"expected_skill_name": "migration-guide",
+			"split": "final_check"
+		},
+		{
+			"id": "no_skill_01",
+			"user_message": "Fix the failing test in parser.test.ts.",
+			"expected_skill_name": null,
+			"split": "optimization"
+		},
+		{
+			"id": "no_skill_02",
+			"user_message": "Rename the function getUser to fetchUser everywhere.",
+			"expected_skill_name": null,
+			"split": "optimization"
+		},
+		{
+			"id": "no_skill_03",
+			"user_message": "Why does npm run build fail?",
+			"expected_skill_name": null,
+			"split": "optimization"
+		},
+		{
+			"id": "no_skill_04",
+			"user_message": "Add a unit test for the date parser.",
+			"expected_skill_name": null,
+			"split": "optimization"
+		},
+		{
+			"id": "no_skill_05",
+			"user_message": "What does this regular expression match?",
+			"expected_skill_name": null,
+			"split": "optimization"
+		},
+		{
+			"id": "no_skill_06",
+			"user_message": "Bump the version in package.json to 2.4.1.",
+			"expected_skill_name": null,
+			"split": "final_check"
+		},
+		{
+			"id": "no_skill_07",
+			"user_message": "Create the git tag v3.0.0 and push it.",
+			"expected_skill_name": null,
+			"split": "optimization"
+		},
+		{
+			"id": "no_skill_08",
+			"user_message": "Explain the difference between a merge and a rebase.",
+			"expected_skill_name": null,
+			"split": "final_check"
+		}
+	]
+}
