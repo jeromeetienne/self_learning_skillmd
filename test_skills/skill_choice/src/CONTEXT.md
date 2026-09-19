@@ -12,8 +12,7 @@ The scoring script of the skill choice test: it runs a harness on each test case
 - Codex runs only `gpt-5.6-luna`, and Claude Code runs only `claude-sonnet-5`, as `HARNESS_MODEL_NAMES` of `skill_choice_types.ts` says. No option changes the model.
 - The choice is the first test skill named in a path under a `skills/` folder, at any depth, in a tool call or a shell command, even a path that does not exist, such as `~/.codex/skills/r2/release-notes/SKILL.md`. A skill that is not in the skills folder of the test, such as a skill of the user, is never a choice. After 3 tool calls with no test skill, or when the harness ends its turn, the choice is no skill. The harness is stopped as soon as the choice is known.
 - The Claude Code run ignores the user settings with `--setting-sources project,local`, and the Codex run ignores `~/.codex/config.toml` with `--ignore-user-config`, so that the plugins of the user compete less with the skills of the test.
-- The files of this folder find `test_cases.json` and `dotclaude_folder/` in the parent folder, never in `src/`.
-
+- The files of this folder find `test_cases.json` and `dotagents_folder/` in the parent folder, never in `src/`.
 - The working folder is a git repository, because without one Codex spends its first commands looking for a repository and loads no skill.
 
 ## Background

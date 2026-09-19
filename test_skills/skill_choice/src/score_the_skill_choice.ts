@@ -43,7 +43,7 @@ export class ScoreTheSkillChoice {
 				.default('optimization'))
 			.option('--test-case-ids <test case id...>', 'run only these test cases, in any group')
 			.option('--skills-folder <path>', 'the folder that holds one folder for each skill',
-				Path.join(SKILL_CHOICE_FOLDER_PATH, 'dotclaude_folder', 'skills'))
+				Path.join(SKILL_CHOICE_FOLDER_PATH, 'dotagents_folder', 'skills'))
 			.option('--concurrency <count>', 'the number of harnesses that run at the same time', '4');
 		program.parse(argv);
 		const options = program.opts<{
