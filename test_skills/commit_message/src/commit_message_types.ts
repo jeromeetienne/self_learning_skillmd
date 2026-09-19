@@ -12,9 +12,9 @@ import type { HarnessName, SplitName } from '../../_shared/src/harness_types.js'
 export const RULE_NAMES = [
 	'conventional_type',
 	'first_line_length',
-	'blank_second_line',
-	'issue_number',
-	'fixes_keyword',
+	'issue_suffix',
+	'why_line',
+	'fixes_last_line',
 	'no_attribution',
 ] as const;
 
@@ -43,6 +43,8 @@ export const CommitMessageTestCaseSchema = z.object({
 	id: z.string(),
 	/** The group of the test case. */
 	split: z.enum(SPLIT_NAMES),
+	/** The branch where the change is staged. A branch such as `fix/15-delete-invalid-index` holds the issue. */
+	branch_name: z.string(),
 	/** What the user adds to the fixed request, such as the issue of the change. It can be empty. */
 	user_message: z.string(),
 	/** The GitHub issue of the change, or `null` when the change has no issue. */

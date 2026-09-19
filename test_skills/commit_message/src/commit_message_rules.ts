@@ -8,7 +8,10 @@ import type { CommitMessageTestCase, RuleCheck, RuleName } from './commit_messag
 ///////////////////////////////////////////////////////////////////////////////
 
 /** The maximum number of characters of the first line. */
-const FIRST_LINE_MAXIMUM_LENGTH = 72;
+const FIRST_LINE_MAXIMUM_LENGTH = 50;
+
+/** The start of the third line, which says why the change was made. */
+const WHY_LINE_PREFIX = 'Why: ';
 
 /** A first line that starts with a Conventional Commits type, an optional scope, and a colon. */
 const CONVENTIONAL_TYPE_REG_EXP = /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^)]+\))?!?: \S/;
@@ -60,10 +63,10 @@ export class CommitMessageRules {
 				`the first line does not start with a type such as "feat: " or "fix: ": ${firstLine}`),
 			CommitMessageRules._buildCheck('first_line_length', firstLine.length <= FIRST_LINE_MAXIMUM_LENGTH,
 				`the first line has ${firstLine.length} characters, more than ${FIRST_LINE_MAXIMUM_LENGTH}`),
-			CommitMessageRules._buildCheck('blank_second_line', lines.length === 1 || lines[1] === '',
-				'the second line is not blank'),
-			CommitMessageRules._checkIssueNumber(commitMessage, testCase),
-			CommitMessageRules._checkFixesKeyword(commitMessage, testCase),
+			CommitMessageRules._checkIssueSuffix(commitMessage, firstLine, testCase),
+			CommitMessageRules._buildCheck('why_line', lines[1] === '' && (lines[2] ?? '').startsWith(WHY_LINE_PREFIX),
+				`the second line is not blank, or the third line does not start with "${WHY_LINE_PREFIX}"`),
+			CommitMessageRules._checkFixesLastLine(commitMessage, lines, testCase),
 			CommitMessageRules._buildCheck('no_attribution', ATTRIBUTION_REG_EXP.test(commitMessage) === false,
 				`the commit message names its author or its tool: ${ATTRIBUTION_REG_EXP.exec(commitMessage)?.[0]}`),
 		];
@@ -77,39 +80,43 @@ export class CommitMessageRules {
 	///////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Checks that the commit message names the issue of the test case, and names no issue when the test case has none.
+	 * Checks that the first line ends with `, #N` when the change has the issue `N`, and that the commit message names
+	 * no issue when the change has none.
 	 *
 	 * @param commitMessage The commit message.
+	 * @param firstLine The first line of the commit message.
 	 * @param testCase The test case.
-	 * @returns The check of the rule `issue_number`.
+	 * @returns The check of the rule `issue_suffix`.
 	 */
-	static _checkIssueNumber(commitMessage: string, testCase: CommitMessageTestCase): RuleCheck {
+	static _checkIssueSuffix(commitMessage: string, firstLine: string, testCase: CommitMessageTestCase): RuleCheck {
 		if (testCase.issue_number === null) {
-			return CommitMessageRules._buildCheck('issue_number', /#\d+/.test(commitMessage) === false,
+			return CommitMessageRules._buildCheck('issue_suffix', /#\d+/.test(commitMessage) === false,
 				'the change has no issue, but the commit message names one');
 		}
-		const issueRegExp = new RegExp(`#${testCase.issue_number}\\b`);
-		return CommitMessageRules._buildCheck('issue_number', issueRegExp.test(commitMessage),
-			`the commit message does not name the issue #${testCase.issue_number}`);
+		const issueSuffix = `, #${testCase.issue_number}`;
+		return CommitMessageRules._buildCheck('issue_suffix', firstLine.endsWith(issueSuffix),
+			`the first line does not end with "${issueSuffix}": ${firstLine}`);
 	}
 
 	/**
-	 * Checks that the commit message says `fixes #N` when the change fixes the issue `N`, and has no word that closes
-	 * an issue in every other case, so that GitHub never closes an issue that is still open.
+	 * Checks that the last line is exactly `fixes #N` when the change fixes the issue `N`, and that the commit message
+	 * has no word that closes an issue in every other case, so that GitHub never closes an issue that is still open.
 	 *
 	 * @param commitMessage The commit message.
+	 * @param lines The lines of the commit message.
 	 * @param testCase The test case.
-	 * @returns The check of the rule `fixes_keyword`.
+	 * @returns The check of the rule `fixes_last_line`.
 	 */
-	static _checkFixesKeyword(commitMessage: string, testCase: CommitMessageTestCase): RuleCheck {
+	static _checkFixesLastLine(commitMessage: string, lines: string[], testCase: CommitMessageTestCase): RuleCheck {
 		if (testCase.is_fix === true && testCase.issue_number !== null) {
-			const fixesRegExp = new RegExp(`\\bfixes #${testCase.issue_number}\\b`, 'i');
-			return CommitMessageRules._buildCheck('fixes_keyword', fixesRegExp.test(commitMessage),
-				`the change fixes the issue #${testCase.issue_number}, but the commit message does not say `
-				+ `"fixes #${testCase.issue_number}"`);
+			const fixesLine = `fixes #${testCase.issue_number}`;
+			const lastLine = lines[lines.length - 1] ?? '';
+			return CommitMessageRules._buildCheck('fixes_last_line', lines.length > 1 && lastLine === fixesLine,
+				`the change fixes the issue #${testCase.issue_number}, but the last line is not "${fixesLine}": `
+				+ lastLine);
 		}
 		const closingMatch = CLOSING_KEYWORD_REG_EXP.exec(commitMessage);
-		return CommitMessageRules._buildCheck('fixes_keyword', closingMatch === null,
+		return CommitMessageRules._buildCheck('fixes_last_line', closingMatch === null,
 			`the change closes no issue, but the commit message says "${closingMatch?.[0]}"`);
 	}
 

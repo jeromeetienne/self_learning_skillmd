@@ -4,6 +4,7 @@
 		{
 			"id": "fix_issue_01",
 			"split": "optimization",
+			"branch_name": "main",
 			"user_message": "This change fixes issue #12: the done command crashed with a TypeError when the index did not exist.",
 			"issue_number": 12,
 			"is_fix": true,
@@ -18,7 +19,8 @@
 		{
 			"id": "fix_issue_02",
 			"split": "optimization",
-			"user_message": "Issue #15 is the bug where `todo delete abc` did nothing and printed nothing. After this change the bug is gone.",
+			"branch_name": "fix/15-delete-invalid-index",
+			"user_message": "`todo delete abc` did nothing and printed nothing. After this change the bug is gone.",
 			"issue_number": 15,
 			"is_fix": true,
 			"file_changes": [
@@ -32,6 +34,7 @@
 		{
 			"id": "fix_issue_03",
 			"split": "optimization",
+			"branch_name": "main",
 			"user_message": "Closes the bug report #21: a task with an empty title could be added.",
 			"issue_number": 21,
 			"is_fix": true,
@@ -46,7 +49,8 @@
 		{
 			"id": "fix_issue_04",
 			"split": "optimization",
-			"user_message": "Bug #9: an unknown command printed the usage and exited with code 0, so scripts did not see the error. This is the fix.",
+			"branch_name": "fix/9-usage-exit-code",
+			"user_message": "An unknown command printed the usage and exited with code 0, so scripts did not see the error. This is the fix.",
 			"issue_number": 9,
 			"is_fix": true,
 			"file_changes": [
@@ -60,7 +64,8 @@
 		{
 			"id": "fix_issue_05",
 			"split": "final_check",
-			"user_message": "Fix for #27, where a due date like 'tomorrow' was saved as it is.",
+			"branch_name": "fix/27-due-date-format",
+			"user_message": "A due date like 'tomorrow' was saved as it is. Now it is refused, so the bug is fixed.",
 			"issue_number": 27,
 			"is_fix": true,
 			"file_changes": [
@@ -74,6 +79,7 @@
 		{
 			"id": "fix_issue_06",
 			"split": "final_check",
+			"branch_name": "main",
 			"user_message": "The README told people to run `todo remove`, which does not exist. Issue #30 reported it, and this change solves it.",
 			"issue_number": 30,
 			"is_fix": true,
@@ -88,7 +94,8 @@
 		{
 			"id": "issue_not_fixed_01",
 			"split": "optimization",
-			"user_message": "First step of issue #18 (task priorities). The command line does not use the priority yet. That comes in a later commit, so the issue stays open.",
+			"branch_name": "feature/18-task-priority",
+			"user_message": "First step only: the command line does not use the priority yet. That comes in a later commit.",
 			"issue_number": 18,
 			"is_fix": false,
 			"file_changes": [
@@ -107,6 +114,7 @@
 		{
 			"id": "issue_not_fixed_02",
 			"split": "optimization",
+			"branch_name": "main",
 			"user_message": "Work on #22. The issue also asks for a --done option, which I will add later.",
 			"issue_number": 22,
 			"is_fix": false,
@@ -121,7 +129,8 @@
 		{
 			"id": "issue_not_fixed_03",
 			"split": "optimization",
-			"user_message": "Preparation for issue #25 (a help command), which will use the usage text again. No change in behavior.",
+			"branch_name": "feature/25-help-command",
+			"user_message": "Preparation for the help command, which will use the usage text again. No change in behavior.",
 			"issue_number": 25,
 			"is_fix": false,
 			"file_changes": [
@@ -140,7 +149,8 @@
 		{
 			"id": "issue_not_fixed_04",
 			"split": "optimization",
-			"user_message": "Issue #31 asks for tests of every command. This adds the first test, for add and list only.",
+			"branch_name": "main",
+			"user_message": "This resolves the first part of #31: a test for add and list. The other commands still need tests.",
 			"issue_number": 31,
 			"is_fix": false,
 			"file_changes": [
@@ -154,6 +164,7 @@
 		{
 			"id": "issue_not_fixed_05",
 			"split": "optimization",
+			"branch_name": "main",
 			"user_message": "Documentation for the JSON output, as discussed in #33. The issue also asks for a JSON schema, which is not in this change.",
 			"issue_number": 33,
 			"is_fix": false,
@@ -168,7 +179,8 @@
 		{
 			"id": "issue_not_fixed_06",
 			"split": "final_check",
-			"user_message": "Part of #36. The clear command removes the done tasks. The confirmation question that the issue asks for is still to do.",
+			"branch_name": "feature/36-clear-command",
+			"user_message": "The clear command removes the done tasks. The confirmation question is still to do.",
 			"issue_number": 36,
 			"is_fix": false,
 			"file_changes": [
@@ -192,6 +204,7 @@
 		{
 			"id": "issue_not_fixed_07",
 			"split": "final_check",
+			"branch_name": "main",
 			"user_message": "Related to issue #40 about the continuous integration. This only adds the test script. The workflow file comes next.",
 			"issue_number": 40,
 			"is_fix": false,
@@ -206,6 +219,7 @@
 		{
 			"id": "no_issue_01",
 			"split": "optimization",
+			"branch_name": "main",
 			"user_message": "Write the commit message, please.",
 			"issue_number": null,
 			"is_fix": false,
@@ -220,6 +234,7 @@
 		{
 			"id": "no_issue_02",
 			"split": "optimization",
+			"branch_name": "refactor-task-list",
 			"user_message": "There is no issue for this one. It is only a rename.",
 			"issue_number": null,
 			"is_fix": false,
@@ -254,6 +269,7 @@
 		{
 			"id": "no_issue_03",
 			"split": "optimization",
+			"branch_name": "main",
 			"user_message": "I added an install section to the README.",
 			"issue_number": null,
 			"is_fix": false,
@@ -268,6 +284,7 @@
 		{
 			"id": "no_issue_04",
 			"split": "optimization",
+			"branch_name": "fix-empty-list",
 			"user_message": "A small bug that I saw while testing: an empty list printed nothing at all. There is no issue for it.",
 			"issue_number": null,
 			"is_fix": true,
@@ -282,6 +299,7 @@
 		{
 			"id": "no_issue_05",
 			"split": "optimization",
+			"branch_name": "main",
 			"user_message": "Nothing uses this file any more.",
 			"issue_number": null,
 			"is_fix": false,
@@ -296,6 +314,7 @@
 		{
 			"id": "no_issue_06",
 			"split": "optimization",
+			"branch_name": "main",
 			"user_message": "",
 			"issue_number": null,
 			"is_fix": false,
@@ -310,6 +329,7 @@
 		{
 			"id": "no_issue_07",
 			"split": "final_check",
+			"branch_name": "main",
 			"user_message": "Please write the message for what I staged.",
 			"issue_number": null,
 			"is_fix": false,

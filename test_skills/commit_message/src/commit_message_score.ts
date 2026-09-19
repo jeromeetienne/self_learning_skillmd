@@ -174,6 +174,7 @@ export class CommitMessageScore {
 		const workingFolderPath = CommitMessageWorkingFolder.create({
 			baseProjectFolderPath: baseProjectFolderPath,
 			skillsFolderPath: skillsFolderPath,
+			branchName: testCase.branch_name,
 			fileChanges: testCase.file_changes,
 		});
 		let harnessRunResult: HarnessRunResult;

@@ -8,15 +8,15 @@ The skill is `dotagents_folder/skills/commit-message/SKILL.md`. Its description 
 
 ## The rules
 
-Code checks six rules on each commit message:
+Code checks six rules on each commit message. Most are house rules, which a model cannot guess without the skill:
 
 | Rule | The commit message obeys the rule when |
 |---|---|
 | `conventional_type` | the first line starts with a Conventional Commits type, such as `feat: ` or `fix(cli): ` |
-| `first_line_length` | the first line has 72 characters or fewer |
-| `blank_second_line` | the commit message has one line, or its second line is blank |
-| `issue_number` | it names the issue of the change as `#N`, or names no issue when the change has none |
-| `fixes_keyword` | it says `fixes #N` when the change fixes the issue `N`, and has no word that closes an issue, such as `closes #N`, in every other case |
+| `first_line_length` | the first line has 50 characters or fewer |
+| `issue_suffix` | the first line ends with `, #N` when the change has the issue `N`, and the commit message names no issue when the change has none |
+| `why_line` | the second line is blank, and the third line starts with `Why: ` |
+| `fixes_last_line` | the last line is exactly `fixes #N` when the change fixes the issue `N`, and the commit message has no word that closes an issue, such as `closes #N`, in every other case |
 | `no_attribution` | it does not name its author or its tool, such as `Co-Authored-By` or `Generated with` |
 
 ## The test cases
@@ -32,7 +32,10 @@ Code checks six rules on each commit message:
 - **`optimization`:** the OPRO loop scores each new body on these 15 test cases.
 - **`final_check`:** these 5 test cases score only the final body. OPRO never sees them.
 
-The user message of a test case gives only the facts, in words that change from one test case to the next, such as "Closes the bug report #21" or "Work on #22". It never names a rule.
+The user message of a test case gives only the facts, and never names a rule. The facts are hard to find on purpose:
+
+- In 6 test cases, the issue number is only in the branch name, such as `fix/15-delete-invalid-index`.
+- Some user messages use a word that the rules refuse, such as "Closes the bug report #21" for a fix, or "This resolves the first part of #31" for a change that does not close the issue.
 
 ## How the score works
 
@@ -68,4 +71,4 @@ Start `claude` or `codex` in `playground/`. That folder holds only the links `.c
 |---|---|---|---|---|
 | 2026-09-19 | codex | `optimization` | 79 of 90 rule checks (87.8 percent) | [0eced72](https://github.com/jeromeetienne/skillmd_opro/commit/0eced72) |
 
-Only `conventional_type` failed: 4 of 15. The five other rules passed on all 15 test cases, so OPRO has little room to improve them.
+This run used the first rules, which were too easy: only `conventional_type` failed, 4 of 15. The rules and the test cases changed after this run.

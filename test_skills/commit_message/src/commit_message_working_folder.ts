@@ -18,9 +18,9 @@ const BASE_COMMIT_MESSAGE = 'Create todo-cli with the add, done, delete, and lis
 
 /**
  * Creates the folder where a harness writes one commit message, outside the repository: a git repository of the base
- * project with one commit, the changes of one test case in the index of git, and a copy of the skills in
- * `.claude/skills` for Claude Code and in `.agents/skills` for Codex. The skills are not in the repository and are
- * not staged.
+ * project with one commit on `main`, the branch of one test case, the changes of that test case in the index of git,
+ * and a copy of the skills in `.claude/skills` for Claude Code and in `.agents/skills` for Codex. The skills are not
+ * in the repository and are not staged.
  */
 export class CommitMessageWorkingFolder {
 	/**
@@ -29,12 +29,15 @@ export class CommitMessageWorkingFolder {
 	 * @param options The options of the working folder.
 	 * @param options.baseProjectFolderPath The folder of the base project.
 	 * @param options.skillsFolderPath The folder that holds one folder for each skill.
+	 * @param options.branchName The branch where the change is staged. A branch other than `main` starts from the
+	 * one commit of `main`.
 	 * @param options.fileChanges The changes that the test case stages.
 	 * @returns The path of the working folder.
 	 */
-	static create({ baseProjectFolderPath, skillsFolderPath, fileChanges }: {
+	static create({ baseProjectFolderPath, skillsFolderPath, branchName, fileChanges }: {
 		baseProjectFolderPath: string,
 		skillsFolderPath: string,
+		branchName: string,
 		fileChanges: FileChange[],
 	}): string {
 		const workingFolderPath = Fs.mkdtempSync(Path.join(Os.tmpdir(), 'commit_message_'));
@@ -44,6 +47,9 @@ export class CommitMessageWorkingFolder {
 		GitCommand.run(workingFolderPath, ['init', '--quiet', '--initial-branch', 'main'], BASE_COMMIT_DATE);
 		GitCommand.run(workingFolderPath, ['add', '--all'], BASE_COMMIT_DATE);
 		GitCommand.run(workingFolderPath, ['commit', '--quiet', '--message', BASE_COMMIT_MESSAGE], BASE_COMMIT_DATE);
+		if (branchName !== 'main') {
+			GitCommand.run(workingFolderPath, ['switch', '--quiet', '--create', branchName], BASE_COMMIT_DATE);
+		}
 
 		Fs.appendFileSync(Path.join(workingFolderPath, '.git', 'info', 'exclude'), '.claude/\n.agents/\n');
 		for (const harnessFolderName of ['.claude', '.agents']) {
