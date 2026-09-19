@@ -70,5 +70,7 @@ Start `claude` or `codex` in `playground/`. That folder holds only the links `.c
 | Date | Harness | Split | Score | Commit |
 |---|---|---|---|---|
 | 2026-09-19 | codex | `optimization` | 79 of 90 rule checks (87.8 percent) | [0eced72](https://github.com/jeromeetienne/skillmd_opro/commit/0eced72) |
+| 2026-09-19 | codex | `optimization` | 54 of 90 rule checks (60 percent) | [983a45a](https://github.com/jeromeetienne/skillmd_opro/commit/983a45a) |
 
-This run used the first rules, which were too easy: only `conventional_type` failed, 4 of 15. The rules and the test cases changed after this run.
+- The first run used the first rules, which were too easy: only `conventional_type` failed, 4 of 15.
+- The second run uses the house rules and the branch names. No test case passes every rule, and `why_line` passes 0 of 15.
