@@ -12,7 +12,7 @@ import type { HarnessName, SplitName } from '../../_shared/src/harness_types.js'
 export const RULE_NAMES = [
 	'sentence_length',
 	'no_abbreviation',
-	'no_contraction',
+	'no_you',
 	'refused_words',
 	'meaning_kept',
 ] as const;

@@ -8,13 +8,13 @@ The skill is `dotagents_folder/skills/simplified-technical-english-rewrite/SKILL
 
 ## The rules
 
-Five rules are checked on each rewrite. Code checks the first four, and a judge checks the last one:
+Five rules are checked on each rewrite. Code checks the first four, and a judge checks the last one. `no_you` and the list of refused words are house rules, which a model cannot guess without the skill:
 
 | Rule | The rewrite obeys the rule when |
 |---|---|
 | `sentence_length` | each sentence has 20 words or fewer, the limit of ASD-STE100 for a procedure |
-| `no_abbreviation` | it has no word of two or more capital letters, such as `API`, no abbreviation with a period, such as `e.g.`, and no short form of a word, such as `repo` or `config` |
-| `no_contraction` | it has no contraction, such as `don't` or `it's` |
+| `no_abbreviation` | it has no word of two or more capital letters, such as `API`, no abbreviation with a period, such as `e.g.`, no short form of a word, such as `repo` or `config`, and no contraction, such as `don't` or `it's` |
+| `no_you` | it never speaks to the reader with `you` or `your`: an instruction uses the imperative, such as "Restart the server", and a description uses a thing as its subject, such as "The server restarts" |
 | `refused_words` | it has no word of the house list of refused words, such as `ensure`, `via`, `might`, `should`, or `in order to` |
 | `meaning_kept` | the judge says that it keeps every fact, number, condition, and instruction of the paragraph, and adds no fact |
 
@@ -22,7 +22,7 @@ Code in a code span or a code block is never checked. The house list of refused 
 
 ## The test cases
 
-`test_cases.json` holds 20 paragraphs of technical text: 15 in `optimization` and 5 in `final_check`. Each paragraph breaks several rules: long sentences, abbreviations, contractions, and refused words.
+`test_cases.json` holds 20 paragraphs of technical text: 15 in `optimization` and 5 in `final_check`. Each paragraph breaks several rules: long sentences, abbreviations, contractions, refused words, and `you`.
 
 ## How the score works
 
@@ -68,12 +68,12 @@ The harness reads `.agents/skills/simplified-technical-english-rewrite/SKILL.md`
 
 | Message to type | Answer that obeys every rule |
 |---|---|
-| Rewrite in Simplified Technical English: You'll need to restart the app after you change the config, otherwise the new values won't be loaded. | Restart the application after you change the configuration. If you do not restart the application, it does not load the new values. |
-| Rewrite in Simplified Technical English: Please ensure that the DB is backed up prior to running the migration script. | Make a backup of the database before you run the migration script. |
+| Rewrite in Simplified Technical English: You'll need to restart the app after you change the config, otherwise the new values won't be loaded. | Restart the application after a change to the configuration. The application loads the new values only when it starts. |
+| Rewrite in Simplified Technical English: Please ensure that the DB is backed up prior to running the migration script. | Make a backup of the database. Then run the migration script. |
 | Rewrite in Simplified Technical English: The API might return a 500 error if the request body is larger than approx. 1 MB. | The application programming interface can return the error 500 when the request body is larger than about 1 megabyte. |
 | Rewrite in Simplified Technical English: In order to reduce the build time, the CI pipeline caches the deps between runs, but you should clear the cache via the dashboard if a dep is updated. | To make the build faster, the continuous integration pipeline keeps the dependencies between runs. When a dependency changes, clear this cache on the dashboard. |
 
-Each answer that obeys every rule has no sentence longer than 20 words, no abbreviation such as `API`, `DB`, `CI`, `MB`, `app`, or `deps`, no contraction, and no refused word such as `ensure`, `prior`, `might`, `should`, `via`, or `in order to`. Each answer also keeps every fact, which the judge checks.
+Each answer that obeys every rule has no sentence longer than 20 words, no abbreviation such as `API`, `DB`, `CI`, `MB`, `app`, `deps`, or `you'll`, no `you` or `your`, and no refused word such as `ensure`, `prior`, `might`, `should`, `via`, or `in order to`. Each answer also keeps every fact, which the judge checks.
 
 ## Results
 
@@ -81,5 +81,5 @@ Each answer that obeys every rule has no sentence longer than 20 words, no abbre
 |---|---|---|---|---|
 | 2026-09-19 | codex | `optimization` | 57 of 75 rule checks (76 percent) | [0d3f77e](https://github.com/jeromeetienne/skillmd_opro/commit/0d3f77e) |
 
-- `no_contraction` passed on all 15 test cases, so it teaches nothing to OPRO.
+- `no_contraction` passed on all 15 test cases, so it taught nothing to OPRO. After this run, `no_you` replaced it, and the contractions moved into `no_abbreviation`.
 - The 4 refusals of the judge were real changes of meaning, such as "you can try" rewritten as an order.

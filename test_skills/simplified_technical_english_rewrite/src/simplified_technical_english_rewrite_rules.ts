@@ -38,6 +38,9 @@ const CONTRACTION_REG_EXP = new RegExp([
 	String.raw`\b(?:it|that|there|what|here|let|who|where)['’]s\b`,
 ].join('|'), 'gi');
 
+/** A word that speaks to the reader, which the house style refuses. */
+const YOU_WORD_REG_EXP = /\b(?:you|your|yours|yourself|yourselves)\b/gi;
+
 /**
  * The words and the phrases that the house style refuses. The list comes from the words that ASD-STE100 does not
  * approve, with some words of the house style added, such as `just` and `please`.
@@ -84,7 +87,7 @@ export class SimplifiedTechnicalEnglishRewriteRules {
 			return SimplifiedTechnicalEnglishRewriteRules._countWords(sentence) > SENTENCE_MAXIMUM_WORD_COUNT;
 		});
 		const abbreviations = SimplifiedTechnicalEnglishRewriteRules.findAbbreviations(proseText);
-		const contractions = proseText.match(CONTRACTION_REG_EXP) ?? [];
+		const youWords = proseText.match(YOU_WORD_REG_EXP) ?? [];
 		const refusedWords = SimplifiedTechnicalEnglishRewriteRules.findRefusedWords(proseText);
 
 		const ruleChecks: RuleCheck[] = [
@@ -93,8 +96,8 @@ export class SimplifiedTechnicalEnglishRewriteRules {
 				+ (longSentences[0] ?? '')),
 			SimplifiedTechnicalEnglishRewriteRules._buildCheck('no_abbreviation', abbreviations.length === 0,
 				`the rewrite uses abbreviations: ${abbreviations.join(', ')}`),
-			SimplifiedTechnicalEnglishRewriteRules._buildCheck('no_contraction', contractions.length === 0,
-				`the rewrite uses contractions: ${contractions.join(', ')}`),
+			SimplifiedTechnicalEnglishRewriteRules._buildCheck('no_you', youWords.length === 0,
+				`the rewrite speaks to the reader ${youWords.length} times, with: ${[...new Set(youWords)].join(', ')}`),
 			SimplifiedTechnicalEnglishRewriteRules._buildCheck('refused_words', refusedWords.length === 0,
 				`the rewrite uses refused words: ${refusedWords.join(', ')}`),
 			SimplifiedTechnicalEnglishRewriteRules._buildCheck('meaning_kept', meaningJudgment?.is_meaning_kept === true,
@@ -124,8 +127,8 @@ export class SimplifiedTechnicalEnglishRewriteRules {
 	}
 
 	/**
-	 * Finds each abbreviation of a text: the words of capital letters, the abbreviations that end with a period, and
-	 * the short forms of words.
+	 * Finds each abbreviation of a text: the words of capital letters, the abbreviations that end with a period, the
+	 * short forms of words, and the contractions, such as `don't`.
 	 *
 	 * @param text The text, without code.
 	 * @returns The abbreviations, each one time, in the order of the text.
@@ -138,7 +141,8 @@ export class SimplifiedTechnicalEnglishRewriteRules {
 		const shortFormWords = SHORT_FORM_WORDS.filter((word) => {
 			return new RegExp(`(?<![\\w./-])${word}(?![\\w/-])`, 'i').test(text);
 		});
-		return [...new Set([...capitalWords, ...dottedAbbreviations, ...shortFormWords])];
+		const contractions = text.match(CONTRACTION_REG_EXP) ?? [];
+		return [...new Set([...capitalWords, ...dottedAbbreviations, ...shortFormWords, ...contractions])];
 	}
 
 	/**
