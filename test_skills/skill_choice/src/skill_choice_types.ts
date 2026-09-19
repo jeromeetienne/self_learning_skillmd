@@ -1,28 +1,12 @@
 import { z } from 'zod';
+import { SPLIT_NAMES } from '../../_shared/src/harness_types.js';
+import type { HarnessName, SplitName } from '../../_shared/src/harness_types.js';
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 //	SkillChoiceTypes — the shapes of the test cases and of the score of the skill choice test
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
-/** The names of the harnesses that the skill choice test can run. */
-export const HARNESS_NAMES = ['claude', 'codex'] as const;
-
-/** The name of one harness that the skill choice test can run. */
-export type HarnessName = typeof HARNESS_NAMES[number];
-
-/** The only model that each harness runs: Claude Code runs only Sonnet, and Codex runs only Luna. */
-export const HARNESS_MODEL_NAMES: Record<HarnessName, string> = {
-	claude: 'claude-sonnet-5',
-	codex: 'gpt-5.6-luna',
-};
-
-/** The names of the two groups of test cases. */
-export const SPLIT_NAMES = ['optimization', 'final_check'] as const;
-
-/** The name of one group of test cases: `optimization` for the OPRO loop, `final_check` for the final description. */
-export type SplitName = typeof SPLIT_NAMES[number];
 
 /** Zod schema of one test case of `test_cases.json`. */
 export const SkillChoiceTestCaseSchema = z.object({

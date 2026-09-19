@@ -1,8 +1,9 @@
 import ChildProcess from 'node:child_process';
 import Readline from 'node:readline';
 import { z } from 'zod';
-import { HARNESS_MODEL_NAMES } from './skill_choice_types.js';
-import type { HarnessName, SkillChoice } from './skill_choice_types.js';
+import { HarnessCommand } from '../../_shared/src/harness_command.js';
+import type { HarnessName } from '../../_shared/src/harness_types.js';
+import type { SkillChoice } from './skill_choice_types.js';
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -92,7 +93,11 @@ export class SkillChoiceHarness {
 		skillNames: string[],
 		timeoutMilliseconds: number,
 	}): Promise<SkillChoice> {
-		const { command, commandArguments } = SkillChoiceHarness._buildCommand(harnessName, userMessage);
+		const { command, commandArguments } = HarnessCommand.build({
+			harnessName: harnessName,
+			userMessage: userMessage,
+			claudeAllowedToolNames: [],
+		});
 		const childProcess = ChildProcess.spawn(command, commandArguments, {
 			cwd: workingFolderPath,
 			stdio: ['ignore', 'pipe', 'pipe'],
@@ -192,46 +197,6 @@ export class SkillChoiceHarness {
 	//	Helpers
 	///////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Builds the command line of one harness. The model is fixed for each harness, and no option changes it.
-	 *
-	 * @param harnessName The harness to run.
-	 * @param userMessage The message that the user sends to the harness.
-	 * @returns The program and its arguments.
-	 */
-	static _buildCommand(harnessName: HarnessName, userMessage: string): {
-		command: string,
-		commandArguments: string[],
-	} {
-		if (harnessName === 'claude') {
-			return {
-				command: 'claude',
-				commandArguments: [
-					'--print',
-					'--model', HARNESS_MODEL_NAMES.claude,
-					'--output-format', 'stream-json',
-					'--verbose',
-					'--no-session-persistence',
-					'--setting-sources', 'project,local',
-					userMessage,
-				],
-			};
-		}
-		return {
-			command: 'codex',
-			commandArguments: [
-				'exec',
-				'--json',
-				'--ephemeral',
-				'--skip-git-repo-check',
-				'--ignore-user-config',
-				'--sandbox', 'read-only',
-				'--model', HARNESS_MODEL_NAMES.codex,
-				userMessage,
-			],
-		};
-	}
 
 	/**
 	 * Reads one line of the JSON Lines output of a harness.

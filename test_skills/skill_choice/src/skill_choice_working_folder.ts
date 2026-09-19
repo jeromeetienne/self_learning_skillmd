@@ -1,7 +1,7 @@
-import ChildProcess from 'node:child_process';
 import Fs from 'node:fs';
 import Os from 'node:os';
 import Path from 'node:path';
+import { GitCommand } from '../../_shared/src/git_command.js';
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -254,7 +254,7 @@ export class SkillChoiceWorkingFolder {
 	}
 
 	/**
-	 * Runs one git command in the working folder, with a fixed author and a fixed date for each commit.
+	 * Runs one git command in the working folder, with a fixed date for each commit.
 	 *
 	 * @param workingFolderPath The working folder.
 	 * @param gitArguments The arguments of git.
@@ -263,20 +263,6 @@ export class SkillChoiceWorkingFolder {
 	 */
 	static _runGit(workingFolderPath: string, gitArguments: string[], commitIndex: number): void {
 		const commitDate = new Date(Date.UTC(2026, 5, 1 + commitIndex * 3, 10, 0, 0)).toISOString();
-		ChildProcess.execFileSync('git', gitArguments, {
-			cwd: workingFolderPath,
-			stdio: 'ignore',
-			env: {
-				...process.env,
-				GIT_CONFIG_GLOBAL: '/dev/null',
-				GIT_CONFIG_NOSYSTEM: '1',
-				GIT_AUTHOR_NAME: 'Test Author',
-				GIT_AUTHOR_EMAIL: 'test.author@example.com',
-				GIT_COMMITTER_NAME: 'Test Author',
-				GIT_COMMITTER_EMAIL: 'test.author@example.com',
-				GIT_AUTHOR_DATE: commitDate,
-				GIT_COMMITTER_DATE: commitDate,
-			},
-		});
+		GitCommand.run(workingFolderPath, gitArguments, commitDate);
 	}
 }

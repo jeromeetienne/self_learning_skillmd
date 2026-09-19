@@ -18,5 +18,8 @@
 	},
 	"include": [
 		"test_skills/**/*.ts"
+	],
+	"exclude": [
+		"test_skills/*/base_project/**"
 	]
 }

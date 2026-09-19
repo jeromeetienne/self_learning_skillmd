@@ -2,13 +2,14 @@ import Fs from 'node:fs';
 import Path from 'node:path';
 import { SkillChoiceHarness } from './skill_choice_harness.js';
 import { SkillChoiceWorkingFolder } from './skill_choice_working_folder.js';
-import { HARNESS_MODEL_NAMES, SkillChoiceTestCaseFileSchema } from './skill_choice_types.js';
+import { Concurrency } from '../../_shared/src/concurrency.js';
+import { HARNESS_MODEL_NAMES } from '../../_shared/src/harness_types.js';
+import type { HarnessName, SplitName } from '../../_shared/src/harness_types.js';
+import { SkillChoiceTestCaseFileSchema } from './skill_choice_types.js';
 import type {
-	HarnessName,
 	SkillChoiceScoreRecord,
 	SkillChoiceTestCase,
 	SkillChoiceTestCaseResult,
-	SplitName,
 } from './skill_choice_types.js';
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -76,7 +77,7 @@ export class SkillChoiceScore {
 		const workingFolderPath = SkillChoiceWorkingFolder.create(skillsFolderPath);
 		let testCaseResults: SkillChoiceTestCaseResult[];
 		try {
-			testCaseResults = await SkillChoiceScore._mapWithConcurrency(testCases, concurrency, async (testCase) => {
+			testCaseResults = await Concurrency.map(testCases, concurrency, async (testCase) => {
 				const testCaseResult = await SkillChoiceScore._runTestCase(
 					harnessName,
 					workingFolderPath,
@@ -181,35 +182,5 @@ export class SkillChoiceScore {
 			return '';
 		}
 		return (match[1] ?? '').trim();
-	}
-
-	/**
-	 * Calls a function on each item, with at most `concurrency` calls at the same time, and keeps the order of the
-	 * items in the results.
-	 *
-	 * @param items The items.
-	 * @param concurrency The maximum number of calls at the same time.
-	 * @param itemFn The function to call on each item.
-	 * @returns The results, in the order of the items.
-	 */
-	static async _mapWithConcurrency<Item, Result>(
-		items: Item[],
-		concurrency: number,
-		itemFn: (item: Item) => Promise<Result>,
-	): Promise<Result[]> {
-		const results: Result[] = new Array(items.length);
-		let nextIndex = 0;
-		const workerCount = Math.max(1, Math.min(concurrency, items.length));
-		const workers = Array.from({
-			length: workerCount,
-		}, async () => {
-			while (nextIndex < items.length) {
-				const index = nextIndex;
-				nextIndex += 1;
-				results[index] = await itemFn(items[index] as Item);
-			}
-		});
-		await Promise.all(workers);
-		return results;
 	}
 }

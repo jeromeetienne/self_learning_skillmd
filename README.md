@@ -27,7 +27,7 @@ The past sessions of Claude Code and Codex show the points of friction. Each poi
 Each test skill starts weak on purpose, so that OPRO has room to improve it.
 
 1. **Skill choice.** Tests the `description` field. The target is `release-notes`, among four neighbor skills. The score is the percentage of user messages for which the model chooses the correct skill.
-2. **Commit message.** Tests the body of a SKILL.md that has rules. Code checks each rule. Not built yet.
+2. **Commit message.** Tests the body of a SKILL.md that has rules. The target is `commit-message`. Code checks six rules on the commit message that the harness writes for 20 staged changes.
 3. **Simplified Technical English rewrite.** Tests a style skill. Code counts the abbreviations and the long sentences, and a second model checks that the meaning did not change. Not built yet.
 
 ## Layout
@@ -38,6 +38,7 @@ Each test skill starts weak on purpose, so that OPRO has room to improve it.
 
 - `pnpm install`: installs the packages.
 - `pnpm run score_the_skill_choice --harness <claude|codex>`: scores the skill choice test. See [test_skills/skill_choice/src/CONTEXT.md](test_skills/skill_choice/src/CONTEXT.md).
+- `pnpm run score_the_commit_message --harness <claude|codex>`: scores the commit message test. See [test_skills/commit_message/src/CONTEXT.md](test_skills/commit_message/src/CONTEXT.md).
 - `pnpm run typecheck`: checks the types.
 
 ## Rules

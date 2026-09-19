@@ -4,6 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"score_the_skill_choice": "tsx test_skills/skill_choice/src/score_the_skill_choice.ts",
+		"score_the_commit_message": "tsx test_skills/commit_message/src/score_the_commit_message.ts",
 		"typecheck": "tsc"
 	},
 	"dependencies": {

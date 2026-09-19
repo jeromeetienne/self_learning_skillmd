@@ -1,31 +1,32 @@
 import Fs from 'node:fs';
 import Path from 'node:path';
 import * as Commander from 'commander';
-import { SkillChoiceScore } from './skill_choice_score.js';
 import { HARNESS_MODEL_NAMES, HARNESS_NAMES, SPLIT_NAMES } from '../../_shared/src/harness_types.js';
 import type { HarnessName, SplitName } from '../../_shared/src/harness_types.js';
-import type { SkillChoiceTestCaseResult } from './skill_choice_types.js';
+import { CommitMessageScore } from './commit_message_score.js';
+import { RULE_NAMES } from './commit_message_types.js';
+import type { CommitMessageTestCaseResult } from './commit_message_types.js';
 
 const __filename = import.meta.filename;
 const __dirname = import.meta.dirname;
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-//	ScoreTheSkillChoice — the command that scores the skills of the skill choice test with one harness
+//	ScoreTheCommitMessage — the command that scores the skills of the commit message test with one harness
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-/** The folder of the skill choice test, which holds this `src/` folder. */
-const SKILL_CHOICE_FOLDER_PATH = Path.join(__dirname, '..');
+/** The folder of the commit message test, which holds this `src/` folder. */
+const COMMIT_MESSAGE_FOLDER_PATH = Path.join(__dirname, '..');
 
 /** The folder where each score file is written. */
-const OUTPUT_FOLDER_PATH = Path.join(SKILL_CHOICE_FOLDER_PATH, '..', '..', 'outputs', 'skill_choice');
+const OUTPUT_FOLDER_PATH = Path.join(COMMIT_MESSAGE_FOLDER_PATH, '..', '..', 'outputs', 'commit_message');
 
 /**
- * The command `pnpm run score_the_skill_choice --harness <claude|codex>`, which scores the skills of the skill choice
- * test, prints each result, and writes the score file into `outputs/skill_choice/`.
+ * The command `pnpm run score_the_commit_message --harness <claude|codex>`, which scores the skills of the commit
+ * message test, prints each result, and writes the score file into `outputs/commit_message/`.
  */
-export class ScoreTheSkillChoice {
+export class ScoreTheCommitMessage {
 	/**
 	 * Parses the command line, runs the score, prints it, and writes the score file.
 	 *
@@ -34,9 +35,9 @@ export class ScoreTheSkillChoice {
 	 */
 	static async main(argv: string[]): Promise<void> {
 		const program = new Commander.Command()
-			.name('score_the_skill_choice')
-			.description('Scores the skills of the skill choice test with one harness.')
-			.addOption(new Commander.Option('--harness <harness name>', 'the harness that chooses the skills')
+			.name('score_the_commit_message')
+			.description('Scores the skills of the commit message test with one harness.')
+			.addOption(new Commander.Option('--harness <harness name>', 'the harness that writes the commit messages')
 				.choices(HARNESS_NAMES)
 				.makeOptionMandatory())
 			.addOption(new Commander.Option('--split <split name>', 'the group of test cases to run')
@@ -44,7 +45,7 @@ export class ScoreTheSkillChoice {
 				.default('optimization'))
 			.option('--test-case-ids <test case id...>', 'run only these test cases, in any group')
 			.option('--skills-folder <path>', 'the folder that holds one folder for each skill',
-				Path.join(SKILL_CHOICE_FOLDER_PATH, 'dotagents_folder', 'skills'))
+				Path.join(COMMIT_MESSAGE_FOLDER_PATH, 'dotagents_folder', 'skills'))
 			.option('--concurrency <count>', 'the number of harnesses that run at the same time', '4');
 		program.parse(argv);
 		const options = program.opts<{
@@ -62,15 +63,16 @@ export class ScoreTheSkillChoice {
 		}
 
 		console.log(`harness ${options.harness}, model ${HARNESS_MODEL_NAMES[options.harness]}`);
-		const scoreRecord = await SkillChoiceScore.score({
+		const scoreRecord = await CommitMessageScore.score({
 			harnessName: options.harness,
 			skillsFolderPath: Path.resolve(options.skillsFolder),
-			testCasesFilePath: Path.join(SKILL_CHOICE_FOLDER_PATH, 'test_cases.json'),
+			baseProjectFolderPath: Path.join(COMMIT_MESSAGE_FOLDER_PATH, 'base_project'),
+			testCasesFilePath: Path.join(COMMIT_MESSAGE_FOLDER_PATH, 'test_cases.json'),
 			splitNames: splitNames,
 			testCaseIds: options.testCaseIds ?? null,
 			concurrency: concurrency,
 			onTestCaseResult: (testCaseResult) => {
-				console.log(ScoreTheSkillChoice._formatTestCaseResult(testCaseResult));
+				console.log(ScoreTheCommitMessage._formatTestCaseResult(testCaseResult));
 			},
 		});
 
@@ -82,8 +84,12 @@ export class ScoreTheSkillChoice {
 		Fs.writeFileSync(scoreFilePath, JSON.stringify(scoreRecord, null, '\t') + '\n');
 
 		console.log('');
-		console.log(`score: ${scoreRecord.correct_count} of ${scoreRecord.test_case_count} correct, `
-			+ `${scoreRecord.score_percent} percent, ${scoreRecord.error_count} errors`);
+		for (const ruleName of RULE_NAMES) {
+			console.log(`${ruleName}: ${scoreRecord.passed_count_by_rule[ruleName]} of ${scoreRecord.test_case_count}`);
+		}
+		console.log(`score: ${scoreRecord.passed_rule_check_count} of ${scoreRecord.rule_check_count} rule checks, `
+			+ `${scoreRecord.score_percent} percent, ${scoreRecord.perfect_test_case_count} perfect test cases, `
+			+ `${scoreRecord.error_count} errors, ${scoreRecord.skill_not_loaded_count} without the skill`);
 		console.log(`score file: ${scoreFilePath}`);
 	}
 
@@ -94,21 +100,29 @@ export class ScoreTheSkillChoice {
 	///////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Writes one test case result as one line of text.
+	 * Writes one test case result as a few lines of text: the count of rules, the first line of the commit message,
+	 * and the reason of each failed rule.
 	 *
 	 * @param testCaseResult The result of one test case.
-	 * @returns The line of text.
+	 * @returns The lines of text.
 	 */
-	static _formatTestCaseResult(testCaseResult: SkillChoiceTestCaseResult): string {
-		const mark = testCaseResult.is_correct ? 'correct' : 'wrong  ';
+	static _formatTestCaseResult(testCaseResult: CommitMessageTestCaseResult): string {
 		const seconds = Math.round(testCaseResult.duration_milliseconds / 1000);
-		let line = `${mark} ${testCaseResult.test_case_id}: expected ${testCaseResult.expected_skill_name ?? 'no skill'}`
-			+ `, chosen ${testCaseResult.chosen_skill_name ?? 'no skill'} (${seconds} seconds)`;
-		if (testCaseResult.error_message !== null) {
-			line += `\n        error: ${testCaseResult.error_message}`;
+		const firstLine = (testCaseResult.commit_message ?? '').split('\n')[0] ?? '';
+		const lines = [
+			`${testCaseResult.passed_rule_count} of ${RULE_NAMES.length} ${testCaseResult.test_case_id}`
+				+ ` (${seconds} seconds${testCaseResult.is_skill_loaded ? '' : ', skill not loaded'}): ${firstLine}`,
+		];
+		for (const ruleCheck of testCaseResult.rule_checks) {
+			if (ruleCheck.failure_reason !== null) {
+				lines.push(`        ${ruleCheck.rule_name}: ${ruleCheck.failure_reason}`);
+			}
 		}
-		return line;
+		if (testCaseResult.error_message !== null) {
+			lines.push(`        error: ${testCaseResult.error_message}`);
+		}
+		return lines.join('\n');
 	}
 }
 
-await ScoreTheSkillChoice.main(process.argv);
+await ScoreTheCommitMessage.main(process.argv);

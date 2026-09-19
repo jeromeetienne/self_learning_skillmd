@@ -1,0 +1,325 @@
+{
+	"target_skill_name": "commit-message",
+	"test_cases": [
+		{
+			"id": "fix_issue_01",
+			"split": "optimization",
+			"user_message": "This change fixes issue #12: the done command crashed with a TypeError when the index did not exist.",
+			"issue_number": 12,
+			"is_fix": true,
+			"file_changes": [
+				{
+					"path": "src/index.ts",
+					"old_text": "\tconst task = tasks[index];\n\ttask.isDone = true;",
+					"new_text": "\tconst task = tasks[index];\n\tif (task === undefined) {\n\t\tthrow new Error(`no task at index ${index}`);\n\t}\n\ttask.isDone = true;"
+				}
+			]
+		},
+		{
+			"id": "fix_issue_02",
+			"split": "optimization",
+			"user_message": "Issue #15 is the bug where `todo delete abc` did nothing and printed nothing. After this change the bug is gone.",
+			"issue_number": 15,
+			"is_fix": true,
+			"file_changes": [
+				{
+					"path": "src/cli.ts",
+					"old_text": "\tdeleteTask(Number(commandArguments[0]));",
+					"new_text": "\tconst index = Number(commandArguments[0]);\n\tif (Number.isInteger(index) === false) {\n\t\tconsole.error('delete needs the index of a task');\n\t\tprocess.exit(1);\n\t}\n\tdeleteTask(index);"
+				}
+			]
+		},
+		{
+			"id": "fix_issue_03",
+			"split": "optimization",
+			"user_message": "Closes the bug report #21: a task with an empty title could be added.",
+			"issue_number": 21,
+			"is_fix": true,
+			"file_changes": [
+				{
+					"path": "src/index.ts",
+					"old_text": "export function addTask(title: string, dueDate: string | null): void {\n\ttasks.push({",
+					"new_text": "export function addTask(title: string, dueDate: string | null): void {\n\tif (title.trim() === '') {\n\t\tthrow new Error('the title of a task cannot be empty');\n\t}\n\ttasks.push({"
+				}
+			]
+		},
+		{
+			"id": "fix_issue_04",
+			"split": "optimization",
+			"user_message": "Bug #9: an unknown command printed the usage and exited with code 0, so scripts did not see the error. This is the fix.",
+			"issue_number": 9,
+			"is_fix": true,
+			"file_changes": [
+				{
+					"path": "src/cli.ts",
+					"old_text": "\tconsole.log('usage: todo <add|done|delete|list>');",
+					"new_text": "\tconsole.error('usage: todo <add|done|delete|list>');\n\tprocess.exit(1);"
+				}
+			]
+		},
+		{
+			"id": "fix_issue_05",
+			"split": "final_check",
+			"user_message": "Fix for #27, where a due date like 'tomorrow' was saved as it is.",
+			"issue_number": 27,
+			"is_fix": true,
+			"file_changes": [
+				{
+					"path": "src/cli.ts",
+					"old_text": "\taddTask(commandArguments[0], commandArguments[1] ?? null);",
+					"new_text": "\tconst dueDate = commandArguments[1] ?? null;\n\tif (dueDate !== null && /^\\d{4}-\\d{2}-\\d{2}$/.test(dueDate) === false) {\n\t\tconsole.error('the due date must be written as YYYY-MM-DD');\n\t\tprocess.exit(1);\n\t}\n\taddTask(commandArguments[0], dueDate);"
+				}
+			]
+		},
+		{
+			"id": "fix_issue_06",
+			"split": "final_check",
+			"user_message": "The README told people to run `todo remove`, which does not exist. Issue #30 reported it, and this change solves it.",
+			"issue_number": 30,
+			"is_fix": true,
+			"file_changes": [
+				{
+					"path": "README.md",
+					"old_text": "    todo remove 0\n",
+					"new_text": "    todo delete 0\n"
+				}
+			]
+		},
+		{
+			"id": "issue_not_fixed_01",
+			"split": "optimization",
+			"user_message": "First step of issue #18 (task priorities). The command line does not use the priority yet. That comes in a later commit, so the issue stays open.",
+			"issue_number": 18,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "src/index.ts",
+					"old_text": "\tisDone: boolean,\n};",
+					"new_text": "\tisDone: boolean,\n\tpriority: number,\n};"
+				},
+				{
+					"path": "src/index.ts",
+					"old_text": "export function addTask(title: string, dueDate: string | null): void {\n\ttasks.push({\n\t\ttitle,\n\t\tdueDate,\n\t\tisDone: false,\n\t});",
+					"new_text": "export function addTask(title: string, dueDate: string | null, priority = 0): void {\n\ttasks.push({\n\t\ttitle,\n\t\tdueDate,\n\t\tisDone: false,\n\t\tpriority,\n\t});"
+				}
+			]
+		},
+		{
+			"id": "issue_not_fixed_02",
+			"split": "optimization",
+			"user_message": "Work on #22. The issue also asks for a --done option, which I will add later.",
+			"issue_number": 22,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "src/cli.ts",
+					"old_text": "\tconst tasks = listTasks();",
+					"new_text": "\tconst isPendingOnly = commandArguments.includes('--pending');\n\tconst tasks = listTasks().filter((task) => isPendingOnly === false || task.isDone === false);"
+				}
+			]
+		},
+		{
+			"id": "issue_not_fixed_03",
+			"split": "optimization",
+			"user_message": "Preparation for issue #25 (a help command), which will use the usage text again. No change in behavior.",
+			"issue_number": 25,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "src/cli.ts",
+					"old_text": "const [commandName, ...commandArguments] = process.argv.slice(2);",
+					"new_text": "const USAGE_TEXT = 'usage: todo <add|done|delete|list>';\n\nconst [commandName, ...commandArguments] = process.argv.slice(2);"
+				},
+				{
+					"path": "src/cli.ts",
+					"old_text": "\tconsole.log('usage: todo <add|done|delete|list>');",
+					"new_text": "\tconsole.log(USAGE_TEXT);"
+				}
+			]
+		},
+		{
+			"id": "issue_not_fixed_04",
+			"split": "optimization",
+			"user_message": "Issue #31 asks for tests of every command. This adds the first test, for add and list only.",
+			"issue_number": 31,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "src/index.test.ts",
+					"old_text": null,
+					"new_text": "import Assert from 'node:assert';\nimport { addTask, listTasks } from './index.js';\n\naddTask('Buy milk', null);\naddTask('Pay rent', '2026-07-01');\n\nAssert.deepStrictEqual(listTasks().map((task) => task.title), ['Buy milk', 'Pay rent']);\nAssert.strictEqual(listTasks()[1]?.dueDate, '2026-07-01');\n"
+				}
+			]
+		},
+		{
+			"id": "issue_not_fixed_05",
+			"split": "optimization",
+			"user_message": "Documentation for the JSON output, as discussed in #33. The issue also asks for a JSON schema, which is not in this change.",
+			"issue_number": 33,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "README.md",
+					"old_text": "    todo remove 0\n",
+					"new_text": "    todo remove 0\n\n## JSON output\n\n`todo list --json` prints the tasks as a JSON array. Each task has the fields `title`, `dueDate`, and `isDone`.\n"
+				}
+			]
+		},
+		{
+			"id": "issue_not_fixed_06",
+			"split": "final_check",
+			"user_message": "Part of #36. The clear command removes the done tasks. The confirmation question that the issue asks for is still to do.",
+			"issue_number": 36,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "src/index.ts",
+					"old_text": "\ttask.isDone = true;\n}\n",
+					"new_text": "\ttask.isDone = true;\n}\n\nexport function clearDoneTasks(): void {\n\ttasks = tasks.filter((task) => task.isDone === false);\n}\n"
+				},
+				{
+					"path": "src/cli.ts",
+					"old_text": "import { addTask, completeTask, deleteTask, listTasks } from './index.js';",
+					"new_text": "import { addTask, clearDoneTasks, completeTask, deleteTask, listTasks } from './index.js';"
+				},
+				{
+					"path": "src/cli.ts",
+					"old_text": "} else {\n\tconsole.log('usage",
+					"new_text": "} else if (commandName === 'clear') {\n\tclearDoneTasks();\n} else {\n\tconsole.log('usage"
+				}
+			]
+		},
+		{
+			"id": "issue_not_fixed_07",
+			"split": "final_check",
+			"user_message": "Related to issue #40 about the continuous integration. This only adds the test script. The workflow file comes next.",
+			"issue_number": 40,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "package.json",
+					"old_text": "\t\"type\": \"module\",\n",
+					"new_text": "\t\"type\": \"module\",\n\t\"scripts\": {\n\t\t\"test\": \"node --test\"\n\t},\n"
+				}
+			]
+		},
+		{
+			"id": "no_issue_01",
+			"split": "optimization",
+			"user_message": "Write the commit message, please.",
+			"issue_number": null,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "src/cli.ts",
+					"old_text": "\t\t\tconsole.log(`${task.isDone ? '[x]' : '[ ]'} ${task.title}`);\n\t\t}",
+					"new_text": "\t\t\tconsole.log(`${task.isDone ? '[x]' : '[ ]'} ${task.title}`);\n\t\t}\n\t\tconsole.log(`${tasks.length} tasks`);"
+				}
+			]
+		},
+		{
+			"id": "no_issue_02",
+			"split": "optimization",
+			"user_message": "There is no issue for this one. It is only a rename.",
+			"issue_number": null,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "src/index.ts",
+					"old_text": "let tasks: Task[] = [];",
+					"new_text": "let taskList: Task[] = [];"
+				},
+				{
+					"path": "src/index.ts",
+					"old_text": "\ttasks.push({",
+					"new_text": "\ttaskList.push({"
+				},
+				{
+					"path": "src/index.ts",
+					"old_text": "\treturn [...tasks];",
+					"new_text": "\treturn [...taskList];"
+				},
+				{
+					"path": "src/index.ts",
+					"old_text": "\ttasks = tasks.filter((_, taskIndex) => taskIndex !== index);",
+					"new_text": "\ttaskList = taskList.filter((_, taskIndex) => taskIndex !== index);"
+				},
+				{
+					"path": "src/index.ts",
+					"old_text": "\tconst task = tasks[index];",
+					"new_text": "\tconst task = taskList[index];"
+				}
+			]
+		},
+		{
+			"id": "no_issue_03",
+			"split": "optimization",
+			"user_message": "I added an install section to the README.",
+			"issue_number": null,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "README.md",
+					"old_text": "A command line tool that keeps a list of tasks.\n",
+					"new_text": "A command line tool that keeps a list of tasks.\n\n## Install\n\n    npm install --global todo-cli\n"
+				}
+			]
+		},
+		{
+			"id": "no_issue_04",
+			"split": "optimization",
+			"user_message": "A small bug that I saw while testing: an empty list printed nothing at all. There is no issue for it.",
+			"issue_number": null,
+			"is_fix": true,
+			"file_changes": [
+				{
+					"path": "src/cli.ts",
+					"old_text": "\t\tfor (const task of tasks) {",
+					"new_text": "\t\tif (tasks.length === 0) {\n\t\t\tconsole.log('no tasks');\n\t\t}\n\t\tfor (const task of tasks) {"
+				}
+			]
+		},
+		{
+			"id": "no_issue_05",
+			"split": "optimization",
+			"user_message": "Nothing uses this file any more.",
+			"issue_number": null,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "src/old_storage.ts",
+					"old_text": null,
+					"new_text": null
+				}
+			]
+		},
+		{
+			"id": "no_issue_06",
+			"split": "optimization",
+			"user_message": "",
+			"issue_number": null,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "src/complete.test.ts",
+					"old_text": null,
+					"new_text": "import Assert from 'node:assert';\nimport { addTask, completeTask, listTasks } from './index.js';\n\naddTask('Buy milk', null);\ncompleteTask(0);\n\nAssert.strictEqual(listTasks()[0]?.isDone, true);\n"
+				}
+			]
+		},
+		{
+			"id": "no_issue_07",
+			"split": "final_check",
+			"user_message": "Please write the message for what I staged.",
+			"issue_number": null,
+			"is_fix": false,
+			"file_changes": [
+				{
+					"path": "src/cli.ts",
+					"old_text": "const [commandName, ...commandArguments] = process.argv.slice(2);\n",
+					"new_text": "const [commandName, ...commandArguments] = process.argv.slice(2);\n\nif (commandName === '--version') {\n\tconsole.log('1.1.0');\n\tprocess.exit(0);\n}\n"
+				}
+			]
+		}
+	]
+}
