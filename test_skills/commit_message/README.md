@@ -66,6 +66,6 @@ Start `claude` or `codex` in `playground/`. That folder holds only the links `.c
 
 | Date | Harness | Split | Score | Commit |
 |---|---|---|---|---|
-| 2026-09-19 | codex | `optimization` | 79 of 90 rule checks (87.8 percent) | this commit |
+| 2026-09-19 | codex | `optimization` | 79 of 90 rule checks (87.8 percent) | [0eced72](https://github.com/jeromeetienne/skillmd_opro/commit/0eced72) |
 
 Only `conventional_type` failed: 4 of 15. The five other rules passed on all 15 test cases, so OPRO has little room to improve them.
