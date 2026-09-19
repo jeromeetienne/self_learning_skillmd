@@ -53,6 +53,7 @@ In each run, OPRO found its big improvement in round 1. Later rounds did not bea
 - `pnpm run score_the_commit_message --harness <claude|codex>`: scores the commit message test. See [test_skills/commit_message/src/CONTEXT.md](test_skills/commit_message/src/CONTEXT.md).
 - `pnpm run score_the_simplified_technical_english_rewrite --harness <claude|codex>`: scores the Simplified Technical English rewrite test. See [test_skills/simplified_technical_english_rewrite/src/CONTEXT.md](test_skills/simplified_technical_english_rewrite/src/CONTEXT.md).
 - `pnpm run run_opro --test-skill <test skill name> --harness <claude|codex>`: runs the OPRO loop on one test skill. See [opro/src/CONTEXT.md](opro/src/CONTEXT.md).
+- `pnpm run copy_opro_results_to_test_example_results`: copies every run folder of `outputs/opro/` into `test_example_results/`, so that git keeps them.
 - `pnpm run typecheck`: checks the types.
 
 ## Rules
