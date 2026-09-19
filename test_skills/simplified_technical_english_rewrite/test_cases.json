@@ -1,0 +1,105 @@
+{
+	"target_skill_name": "simplified-technical-english-rewrite",
+	"test_cases": [
+		{
+			"id": "paragraph_01",
+			"split": "optimization",
+			"source_text": "To get started, you'll need to clone the repo and install the deps via npm. Make sure your env vars are set up correctly, e.g. the API key and the DB URL, otherwise the app won't be able to connect to the server and you might see a bunch of confusing errors in the console."
+		},
+		{
+			"id": "paragraph_02",
+			"split": "optimization",
+			"source_text": "The CLI caches the auth token in your home dir so that you don't have to log in every time you run a command, but if the token expires or is revoked by an admin you'll have to run the login command again to obtain a new one."
+		},
+		{
+			"id": "paragraph_03",
+			"split": "optimization",
+			"source_text": "Before opening a PR, please ensure that all unit tests pass locally and that the linter doesn't report any warnings, since the CI pipeline will reject any PR that fails either of these checks and a reviewer won't look at it until it's green."
+		},
+		{
+			"id": "paragraph_04",
+			"split": "optimization",
+			"source_text": "Config files are loaded in the following order: the global config in /etc, then the user config in your home dir, and finally the project config in the repo root, with each subsequent file overriding any values that were set by the previous ones."
+		},
+		{
+			"id": "paragraph_05",
+			"split": "optimization",
+			"source_text": "If the build fails with an out-of-memory error, you can try to increase the max heap size of the JVM via the JAVA_OPTS env var, although in most cases the real problem is a memory leak in one of the tests, which you should fix instead."
+		},
+		{
+			"id": "paragraph_06",
+			"split": "optimization",
+			"source_text": "The API returns a 429 status code when a client sends more than approx. 100 requests per min, and it's the client's responsibility to wait for the number of seconds given in the Retry-After header before it retries the request."
+		},
+		{
+			"id": "paragraph_07",
+			"split": "optimization",
+			"source_text": "We're deprecating the v1 endpoints in the next release, so all clients that still use them should migrate to v2 as soon as possible, because after the release the v1 endpoints will return an error and we won't provide any additional support for them."
+		},
+		{
+			"id": "paragraph_08",
+			"split": "optimization",
+			"source_text": "To restore a DB backup, stop the app first, then run the restore script with the path of the backup file as its only argument, and wait until the script prints \"done\" before you start the app again, since starting it earlier might corrupt the data."
+		},
+		{
+			"id": "paragraph_09",
+			"split": "optimization",
+			"source_text": "The UI doesn't update automatically when another user changes a task, so if two people are editing the same list at the same time, one of them might overwrite the other's changes without noticing it, which is a known issue that we plan to fix in Q3."
+		},
+		{
+			"id": "paragraph_10",
+			"split": "optimization",
+			"source_text": "Logs are written to stdout in JSON format and are collected by the log agent that runs on each node, which forwards them to the central log server where they are kept for 30 days before they're deleted automatically."
+		},
+		{
+			"id": "paragraph_11",
+			"split": "optimization",
+			"source_text": "When you add a new dependency, pin it to an exact version in package.json rather than using a caret range, since an unexpected minor update of a third-party lib has broken our prod build twice in the last year."
+		},
+		{
+			"id": "paragraph_12",
+			"split": "optimization",
+			"source_text": "The search index is rebuilt every night at 2 a.m. UTC, which means that docs you publish during the day won't appear in the search results until the next morning, unless you trigger a manual rebuild from the admin page."
+		},
+		{
+			"id": "paragraph_13",
+			"split": "optimization",
+			"source_text": "Numerous users have reported that the export feature is very slow for large projects, which is caused by the fact that it performs a separate DB query for every single task instead of loading all tasks with one query."
+		},
+		{
+			"id": "paragraph_14",
+			"split": "optimization",
+			"source_text": "If you'd like to contribute a translation, copy the English strings file, rename it with the code of your language, e.g. fr.json for French, and translate each value while leaving the keys unchanged, because the app uses the keys to find each string."
+		},
+		{
+			"id": "paragraph_15",
+			"split": "optimization",
+			"source_text": "SSH access to the prod servers is restricted to members of the ops team, and all other engineers who need to inspect a server should ask the on-call engineer to perform the task for them or to grant them temporary access for a max of 4 hours."
+		},
+		{
+			"id": "paragraph_16",
+			"split": "final_check",
+			"source_text": "You can't run the integration tests without Docker, since each test starts its own containers for the DB and the message queue, and the containers are removed automatically after the test finishes, whether it passes or fails."
+		},
+		{
+			"id": "paragraph_17",
+			"split": "final_check",
+			"source_text": "To reduce the size of the bundle, the build tool removes any code that isn't used by the app, but this only works if the libs you import are published as ES modules, so prefer those libs over the ones that only ship CommonJS."
+		},
+		{
+			"id": "paragraph_18",
+			"split": "final_check",
+			"source_text": "The feature flag service lets you enable a new feature for a subset of users, e.g. only for internal staff, and it's strongly recommended to leave a flag on for at least a week before you remove it, in order to be able to switch the feature off quickly if something goes wrong."
+		},
+		{
+			"id": "paragraph_19",
+			"split": "final_check",
+			"source_text": "Passwords are hashed with bcrypt before they're stored in the DB, and the app never logs them or sends them to any third-party service, so even an admin who has full access to the DB can't read a user's password."
+		},
+		{
+			"id": "paragraph_20",
+			"split": "final_check",
+			"source_text": "If the deploy job hangs for more than 15 min, cancel it from the CI dashboard, check the status page of our cloud provider for any ongoing incident, and only then start the job again, because a second deploy that runs in parallel with the first might leave the servers in an inconsistent state."
+		}
+	]
+}

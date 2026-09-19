@@ -28,7 +28,7 @@ Each test skill starts weak on purpose, so that OPRO has room to improve it.
 
 1. **Skill choice.** Tests the `description` field. The target is `release-notes`, among four neighbor skills. The score is the percentage of user messages for which the model chooses the correct skill.
 2. **Commit message.** Tests the body of a SKILL.md that has rules. The target is `commit-message`. Code checks six rules on the commit message that the harness writes for 20 staged changes.
-3. **Simplified Technical English rewrite.** Tests a style skill. Code counts the abbreviations and the long sentences, and a second model checks that the meaning did not change. Not built yet.
+3. **Simplified Technical English rewrite.** Tests a style skill. The target is `simplified-technical-english-rewrite`. Code checks four rules on the rewrite of 20 paragraphs, such as the length of the sentences and the abbreviations, and a judge checks that the meaning did not change.
 
 ## Layout
 
@@ -39,6 +39,7 @@ Each test skill starts weak on purpose, so that OPRO has room to improve it.
 - `pnpm install`: installs the packages.
 - `pnpm run score_the_skill_choice --harness <claude|codex>`: scores the skill choice test. See [test_skills/skill_choice/src/CONTEXT.md](test_skills/skill_choice/src/CONTEXT.md).
 - `pnpm run score_the_commit_message --harness <claude|codex>`: scores the commit message test. See [test_skills/commit_message/src/CONTEXT.md](test_skills/commit_message/src/CONTEXT.md).
+- `pnpm run score_the_simplified_technical_english_rewrite --harness <claude|codex>`: scores the Simplified Technical English rewrite test. See [test_skills/simplified_technical_english_rewrite/src/CONTEXT.md](test_skills/simplified_technical_english_rewrite/src/CONTEXT.md).
 - `pnpm run typecheck`: checks the types.
 
 ## Rules
