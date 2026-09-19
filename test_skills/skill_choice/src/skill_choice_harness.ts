@@ -1,0 +1,369 @@
+import ChildProcess from 'node:child_process';
+import Readline from 'node:readline';
+import { z } from 'zod';
+import { HARNESS_MODEL_NAMES } from './skill_choice_types.js';
+import type { HarnessName, SkillChoice } from './skill_choice_types.js';
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//	SkillChoiceHarness — runs one harness on one user message and reads which skill it loads
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/** Finds the skill name in any path that ends with `skills/<skill name>/SKILL.md`. */
+const SKILL_FILE_PATH_REGEXP = /skills\/([a-z0-9-]+)\/SKILL\.md/;
+
+/** The number of tool calls without a skill after which the harness is stopped, and no skill is recorded. */
+const TOOL_CALL_COUNT_BEFORE_NO_SKILL = 3;
+
+/** One event of a harness that matters for the choice of skill. */
+type HarnessObservation = {
+	/** `tool_call` for a command or a tool call, `end` when the harness ends its turn, `failure` for an error. */
+	kind: 'tool_call' | 'end' | 'failure',
+	/** For a `tool_call`, the skill that the call loads, or `null` when the call loads no skill. */
+	skillName: string | null,
+	/** The text of the event. */
+	evidence: string,
+};
+
+/** Zod schema of the Codex event that starts a shell command. */
+const CodexCommandStartedEventSchema = z.object({
+	/** The type of the event. */
+	type: z.literal('item.started'),
+	/** The item that starts. */
+	item: z.object({
+		/** The type of the item. */
+		type: z.literal('command_execution'),
+		/** The shell command. */
+		command: z.string(),
+	}),
+});
+
+/** Zod schema of a Claude Code event that holds one message of the assistant. */
+const ClaudeAssistantEventSchema = z.object({
+	/** The type of the event. */
+	type: z.literal('assistant'),
+	/** The message of the assistant. */
+	message: z.object({
+		/** The blocks of the message: text, thinking, or tool calls. */
+		content: z.array(z.unknown()),
+	}),
+});
+
+/** Zod schema of one tool call in a message of the Claude Code assistant. */
+const ClaudeToolUseSchema = z.object({
+	/** The type of the block. */
+	type: z.literal('tool_use'),
+	/** The name of the tool. */
+	name: z.string(),
+	/** The input of the tool. */
+	input: z.record(z.string(), z.unknown()),
+});
+
+/** Zod schema of the last event of a Claude Code run. */
+const ClaudeResultEventSchema = z.object({
+	/** The type of the event. */
+	type: z.literal('result'),
+	/** `true` when the run failed. */
+	is_error: z.boolean().optional(),
+});
+
+/**
+ * Runs `claude` or `codex` on one user message in a working folder, and stops the harness as soon as the choice of
+ * skill is known. The choice is known at the first tool call that loads a skill. After
+ * `TOOL_CALL_COUNT_BEFORE_NO_SKILL` tool calls with no skill, or when the harness ends its turn, the choice is no
+ * skill.
+ */
+export class SkillChoiceHarness {
+	/**
+	 * Runs one harness on one user message, and returns the skill that the harness loads.
+	 *
+	 * @param options The options of the run.
+	 * @param options.harnessName The harness to run.
+	 * @param options.workingFolderPath The folder that holds `.claude/skills` and `.agents/skills`, where the
+	 * harness runs.
+	 * @param options.userMessage The message that the user sends to the harness.
+	 * @param options.timeoutMilliseconds The time after which the harness is stopped and an error is recorded.
+	 * @returns The choice of skill.
+	 */
+	static async chooseSkill({ harnessName, workingFolderPath, userMessage, timeoutMilliseconds }: {
+		harnessName: HarnessName,
+		workingFolderPath: string,
+		userMessage: string,
+		timeoutMilliseconds: number,
+	}): Promise<SkillChoice> {
+		const { command, commandArguments } = SkillChoiceHarness._buildCommand(harnessName, userMessage);
+		const childProcess = ChildProcess.spawn(command, commandArguments, {
+			cwd: workingFolderPath,
+			stdio: ['ignore', 'pipe', 'pipe'],
+		});
+
+		let stderrText = '';
+		childProcess.stderr.on('data', (chunk: Buffer) => {
+			stderrText = (stderrText + chunk.toString()).slice(-2000);
+		});
+
+		const evidenceLines: string[] = [];
+		let toolCallCount = 0;
+
+		const choicePromise = new Promise<SkillChoice>((resolve) => {
+			const timeout = setTimeout(() => {
+				resolve({
+					chosenSkillName: null,
+					evidence: evidenceLines.join('\n'),
+					errorMessage: `the harness ran for more than ${timeoutMilliseconds} milliseconds`,
+				});
+			}, timeoutMilliseconds);
+
+			const lineReader = Readline.createInterface({
+				input: childProcess.stdout,
+			});
+			lineReader.on('line', (line) => {
+				const observations = SkillChoiceHarness._readLine(harnessName, line);
+				for (const observation of observations) {
+					evidenceLines.push(observation.evidence);
+					if (observation.kind === 'failure') {
+						clearTimeout(timeout);
+						resolve({
+							chosenSkillName: null,
+							evidence: evidenceLines.join('\n'),
+							errorMessage: observation.evidence,
+						});
+						return;
+					}
+					if (observation.kind === 'end') {
+						clearTimeout(timeout);
+						resolve({
+							chosenSkillName: null,
+							evidence: evidenceLines.join('\n'),
+							errorMessage: null,
+						});
+						return;
+					}
+					if (observation.skillName !== null) {
+						clearTimeout(timeout);
+						resolve({
+							chosenSkillName: observation.skillName,
+							evidence: evidenceLines.join('\n'),
+							errorMessage: null,
+						});
+						return;
+					}
+					toolCallCount += 1;
+					if (toolCallCount >= TOOL_CALL_COUNT_BEFORE_NO_SKILL) {
+						clearTimeout(timeout);
+						resolve({
+							chosenSkillName: null,
+							evidence: evidenceLines.join('\n'),
+							errorMessage: null,
+						});
+						return;
+					}
+				}
+			});
+
+			childProcess.on('close', (exitCode) => {
+				clearTimeout(timeout);
+				resolve({
+					chosenSkillName: null,
+					evidence: evidenceLines.join('\n'),
+					errorMessage: `the harness stopped with the exit code ${exitCode} before a choice: ${stderrText.trim()}`,
+				});
+			});
+			childProcess.on('error', (error) => {
+				clearTimeout(timeout);
+				resolve({
+					chosenSkillName: null,
+					evidence: evidenceLines.join('\n'),
+					errorMessage: `the harness did not start: ${error.message}`,
+				});
+			});
+		});
+
+		const skillChoice = await choicePromise;
+		if (childProcess.exitCode === null) {
+			childProcess.kill('SIGTERM');
+		}
+		return skillChoice;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////
+	//	Helpers
+	///////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Builds the command line of one harness. The model is fixed for each harness, and no option changes it.
+	 *
+	 * @param harnessName The harness to run.
+	 * @param userMessage The message that the user sends to the harness.
+	 * @returns The program and its arguments.
+	 */
+	static _buildCommand(harnessName: HarnessName, userMessage: string): {
+		command: string,
+		commandArguments: string[],
+	} {
+		if (harnessName === 'claude') {
+			return {
+				command: 'claude',
+				commandArguments: [
+					'--print',
+					'--model', HARNESS_MODEL_NAMES.claude,
+					'--output-format', 'stream-json',
+					'--verbose',
+					'--no-session-persistence',
+					'--setting-sources', 'project,local',
+					userMessage,
+				],
+			};
+		}
+		return {
+			command: 'codex',
+			commandArguments: [
+				'exec',
+				'--json',
+				'--ephemeral',
+				'--skip-git-repo-check',
+				'--ignore-user-config',
+				'--sandbox', 'read-only',
+				'--model', HARNESS_MODEL_NAMES.codex,
+				userMessage,
+			],
+		};
+	}
+
+	/**
+	 * Reads one line of the JSON Lines output of a harness.
+	 *
+	 * @param harnessName The harness that wrote the line.
+	 * @param line One line of the output.
+	 * @returns The observations of the line, empty when the line does not matter for the choice.
+	 */
+	static _readLine(harnessName: HarnessName, line: string): HarnessObservation[] {
+		let event: unknown;
+		try {
+			event = JSON.parse(line);
+		} catch {
+			return [];
+		}
+		if (harnessName === 'claude') {
+			return SkillChoiceHarness._readClaudeEvent(event);
+		}
+		return SkillChoiceHarness._readCodexEvent(event);
+	}
+
+	/**
+	 * Reads one event of `codex exec --json`. Codex has no skill tool: it loads a skill with a shell command that
+	 * reads the `SKILL.md` file.
+	 *
+	 * @param event One parsed line of the output.
+	 * @returns The observations of the event.
+	 */
+	static _readCodexEvent(event: unknown): HarnessObservation[] {
+		const commandStarted = CodexCommandStartedEventSchema.safeParse(event);
+		if (commandStarted.success === true) {
+			const command = commandStarted.data.item.command;
+			return [
+				{
+					kind: 'tool_call',
+					skillName: SkillChoiceHarness._findSkillName(command),
+					evidence: `command: ${command}`,
+				},
+			];
+		}
+
+		const eventType = z.object({
+			type: z.string(),
+		}).safeParse(event);
+		if (eventType.success === false) {
+			return [];
+		}
+		if (eventType.data.type === 'turn.completed') {
+			return [
+				{
+					kind: 'end',
+					skillName: null,
+					evidence: 'the turn ended',
+				},
+			];
+		}
+		if (eventType.data.type === 'turn.failed' || eventType.data.type === 'error') {
+			return [
+				{
+					kind: 'failure',
+					skillName: null,
+					evidence: JSON.stringify(event),
+				},
+			];
+		}
+		return [];
+	}
+
+	/**
+	 * Reads one event of `claude --print --output-format stream-json`. Claude Code loads a skill with its `Skill`
+	 * tool, or reads the `SKILL.md` file with another tool.
+	 *
+	 * @param event One parsed line of the output.
+	 * @returns The observations of the event.
+	 */
+	static _readClaudeEvent(event: unknown): HarnessObservation[] {
+		const assistantEvent = ClaudeAssistantEventSchema.safeParse(event);
+		if (assistantEvent.success === true) {
+			const observations: HarnessObservation[] = [];
+			for (const block of assistantEvent.data.message.content) {
+				const toolUse = ClaudeToolUseSchema.safeParse(block);
+				if (toolUse.success === false) {
+					continue;
+				}
+				const inputText = JSON.stringify(toolUse.data.input);
+				let skillName = SkillChoiceHarness._findSkillName(inputText);
+				const skillInput = toolUse.data.input.skill;
+				if (toolUse.data.name === 'Skill' && typeof skillInput === 'string') {
+					skillName = skillInput.split(':').pop() ?? skillInput;
+				}
+				observations.push({
+					kind: 'tool_call',
+					skillName: skillName,
+					evidence: `tool ${toolUse.data.name}: ${inputText}`,
+				});
+			}
+			return observations;
+		}
+
+		const resultEvent = ClaudeResultEventSchema.safeParse(event);
+		if (resultEvent.success === true) {
+			if (resultEvent.data.is_error === true) {
+				return [
+					{
+						kind: 'failure',
+						skillName: null,
+						evidence: JSON.stringify(event),
+					},
+				];
+			}
+			return [
+				{
+					kind: 'end',
+					skillName: null,
+					evidence: 'the turn ended',
+				},
+			];
+		}
+		return [];
+	}
+
+	/**
+	 * Finds the skill that a command or a tool input loads.
+	 *
+	 * @param text The command or the tool input.
+	 * @returns The skill name, or `null` when the text reads no `SKILL.md` file.
+	 */
+	static _findSkillName(text: string): string | null {
+		const match = SKILL_FILE_PATH_REGEXP.exec(text);
+		if (match === null) {
+			return null;
+		}
+		return match[1] ?? null;
+	}
+}

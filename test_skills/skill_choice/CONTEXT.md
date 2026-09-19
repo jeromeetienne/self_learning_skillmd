@@ -8,6 +8,7 @@ The skill choice test: it scores the `description` field of `release-notes` by c
 - `dotclaude_folder/skills/`: also holds the four neighbor skills: `changelog-entry`, `pull-request-description`, `announcement-post`, and `migration-guide`.
 - `playground/`: start `claude` or `codex` here to see the choice live.
 - `test_cases.json`: 40 user messages, each with the skill that a model must choose: 16 for `release-notes`, 4 for each neighbor, and 8 for no skill.
+- `src/`: the scoring script of the test — see its CONTEXT.md.
 
 ## Rules
 - The description of `release-notes` is weak on purpose, and its body is good, because this test measures only the description.

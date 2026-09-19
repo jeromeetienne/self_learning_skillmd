@@ -7,7 +7,6 @@ A prototype that improves SKILL.md files with OPRO (Optimization by Prompting), 
 - Learn how OPRO works on a SKILL.md file, the format that Claude Code, Codex, and other AI coding agents read.
 - Measure how efficient OPRO is: the best score and the cost after each round.
 - Keep the tool generic, so that a person can say "apply OPRO to this skill" for any SKILL.md that has test cases and a score.
-- Later, use what this prototype teaches in [Teamwright](https://github.com/jeromeetienne/teamwright), which holds many prompts.
 
 ## How OPRO works
 
@@ -34,6 +33,12 @@ Each test skill starts weak on purpose, so that OPRO has room to improve it.
 ## Layout
 
 - `test_skills/`: one folder for each test skill, with its skills, its test cases, and a `playground/` folder where you start `claude` or `codex`. See its [CONTEXT.md](test_skills/CONTEXT.md).
+
+## Commands
+
+- `pnpm install`: installs the packages.
+- `pnpm run score_the_skill_choice --harness <claude|codex>`: scores the skill choice test. See [test_skills/skill_choice/src/CONTEXT.md](test_skills/skill_choice/src/CONTEXT.md).
+- `pnpm run typecheck`: checks the types.
 
 ## Rules
 
