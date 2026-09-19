@@ -86,3 +86,18 @@ Each answer that obeys every rule has no sentence longer than 20 words, no abbre
 - The 4 refusals of the judge were real changes of meaning, such as "you can try" rewritten as an order.
 - With `no_you`, the second run scored 68 percent, and `no_you` passed on only 6 of 15 test cases.
 - `refused_words` passed on 12 of 15 test cases in the first run, and on 14 of 15 in the second run, with no change to the rule, so one run is noisy.
+
+## OPRO runs
+
+Each run used Codex with `gpt-5.6-luna`, 3 rounds, and 2 versions in each round. The `optimization` score is the average of the score runs of the version.
+
+| Date | Score runs | First version: `optimization` | Best version: `optimization` | First version: `final_check` | Best version: `final_check` | Commit |
+|---|---|---|---|---|---|---|
+| 2026-09-19 | 1 | 68 percent | 85.3 percent (version 1, round 1) | 76 percent | 92 percent | [057bf2f](https://github.com/jeromeetienne/skillmd_opro/commit/057bf2f) |
+| 2026-09-19 | 1 | 74.7 percent | 89.3 percent (version 4, round 2) | 80 percent | 76 percent | [d88f8ef](https://github.com/jeromeetienne/skillmd_opro/commit/d88f8ef) |
+| 2026-09-19 | 3 | 69.8 percent | 88.5 percent (version 2, round 1) | 68 percent | 88 percent | [d88f8ef](https://github.com/jeromeetienne/skillmd_opro/commit/d88f8ef) |
+
+- In the first run, `refused_words` and `meaning_kept` contradicted each other: the judge refused a rewrite that replaced "approximately" or "should". The fix of the judge in [d88f8ef](https://github.com/jeromeetienne/skillmd_opro/commit/d88f8ef) removed the conflict.
+- In the second run, the best version scored lower than the first version on `final_check`. With one score run for each version, the noise of 5 to 8 points is as large as the improvements.
+- In the third run, the 3 score runs of one version differed by up to 6.7 points, and the average made the improvement hold on `final_check`: a gain of 20 points.
+- In every run, rounds 2 and 3 did not beat the best version of round 1 by more than the noise.

@@ -30,9 +30,20 @@ Each test skill starts weak on purpose, so that OPRO has room to improve it.
 2. **Commit message.** Tests the body of a SKILL.md that has rules. The target is `commit-message`. Code checks six rules on the commit message that the harness writes for 20 staged changes.
 3. **Simplified Technical English rewrite.** Tests a style skill. The target is `simplified-technical-english-rewrite`. Code checks four rules on the rewrite of 20 paragraphs, such as the length of the sentences and the abbreviations, and a judge checks that the meaning did not change.
 
+## OPRO results
+
+| Test skill | Best OPRO run: `final_check`, first version to best version | Details |
+|---|---|---|
+| Skill choice | no run yet | |
+| Commit message | 50 percent to 100 percent | [OPRO runs](test_skills/commit_message/README.md#opro-runs) |
+| Simplified Technical English rewrite | 68 percent to 88 percent, with 3 score runs for each version | [OPRO runs](test_skills/simplified_technical_english_rewrite/README.md#opro-runs) |
+
+In each run, OPRO found its big improvement in round 1. Later rounds did not beat it by more than the noise of the score.
+
 ## Layout
 
 - `opro/`: the OPRO loop, which improves the target skill of one test skill. See [opro/src/CONTEXT.md](opro/src/CONTEXT.md).
+- `test_example_results/`: a copy of the run folders of the OPRO runs of the "OPRO results" section, with every version and every score file.
 - `test_skills/`: one folder for each test skill, with its skills, its test cases, and a `playground/` folder where you start `claude` or `codex`. See its [CONTEXT.md](test_skills/CONTEXT.md).
 
 ## Commands

@@ -1,0 +1,236 @@
+{
+	"harness_name": "codex",
+	"model_name": "gpt-5.6-luna",
+	"skills_folder_path": "/Users/jetienne/webwork/skillmd_opro/outputs/opro/simplified_technical_english_rewrite_codex_2026-09-19T09-58-29-194Z/version_001/skills",
+	"target_skill_text": "---\nname: simplified-technical-english-rewrite\ndescription: Rewrites a text in ASD-STE100 Simplified Technical English. Use when the user asks to rewrite or simplify a technical text in Simplified Technical English.\n---\n\n# Simplified Technical English rewrite\n\nRewrite the source text in clear, simple English.\n\n## Meaning\n\n- Keep every fact, number, condition, limit, sequence, warning, and instruction.\n- Do not add facts, causes, results, examples, or advice.\n- Keep the original level of certainty. Keep words such as “can,” “may,” “must,” and “should.”\n- Keep the difference between an action and a possible action.\n- State who performs each action when the source states who performs it.\n- Do not change the source of an action. For example, logs written to standard output can be collected and forwarded by a log agent. The log agent does not write the logs.\n\n## Sentence and paragraph rules\n\n- Use one main idea in each sentence.\n- Use no more than 20 words in a sentence.\n- Split long sentences at conditions, sequences, or separate actions.\n- Put a condition before the action when this order is clear.\n- Use short paragraphs.\n- Use numbered steps for a sequence.\n\nExample:\n\nSource: “If the test fails, stop the deployment and report the error.”\n\nRewrite:\n\n“If the test fails, stop the deployment. Report the error.”\n\n## Words and grammar\n\n- Use common words.\n- Use the active voice when the source meaning stays unchanged.\n- Use the present tense for general behaviour.\n- Use “before,” “after,” “when,” and “if” to show time and conditions.\n- Use “must” for a required action.\n- Use “can” for a possible action or result.\n- Do not speak directly to the reader. Do not use “you,” “your,” or similar forms.\n- Write “the operator,” “the user,” “the application,” or another exact subject when needed.\n- Do not use vague words such as “very” or “approximately.”\n- Use exact values and units from the source.\n- Do not replace a precise limit with a general word.\n\nExample:\n\nSource: “You can try to increase the maximum heap size.”\n\nRewrite:\n\n“The operator can try to increase the maximum heap size.”\n\n## Abbreviations\n\n- Do not use abbreviations in the rewrite.\n- Write the full term the first time.\n- Use the full term again when this prevents confusion.\n- Keep an abbreviation only when it is part of an exact identifier, file name, command, variable name, or required code.\n- Do not shorten “application” to “app.”\n- Write “application programming interface,” “web address,” “Coordinated Universal Time,” “before noon,” and “Secure Shell” instead of common abbreviations.\n\n## Technical names and code\n\n- Preserve exact names of variables, commands, files, directories, products, and code.\n- Do not translate or change a technical identifier.\n- Explain what an identifier means only when the source gives that meaning.\n- Preserve capitalization when capitalization is part of an identifier.\n- Preserve code, paths, placeholders, numbers, and punctuation that carry meaning.\n\nExample:\n\n“`JAVA_OPTS` is an environment variable. If the build fails because of an out-of-memory error, the operator can try to increase the maximum heap size with `JAVA_OPTS`.”\n\n## Final check\n\nBefore returning the rewrite, check each sentence.\n\n- The sentence has no more than 20 words.\n- The sentence contains no forbidden abbreviation.\n- The sentence does not address the reader directly.\n- Every source fact, number, condition, limit, and instruction remains.\n- No new fact or stronger claim appears.\n- Each action has the same subject as the source.\n- Each possible action keeps its original uncertainty.\n",
+	"split_names": [
+		"final_check"
+	],
+	"started_at": "2026-09-19T10:12:32.603Z",
+	"test_case_count": 5,
+	"perfect_test_case_count": 3,
+	"rule_check_count": 25,
+	"passed_rule_check_count": 23,
+	"passed_count_by_rule": {
+		"sentence_length": 5,
+		"no_abbreviation": 5,
+		"no_you": 5,
+		"refused_words": 3,
+		"meaning_kept": 5
+	},
+	"error_count": 0,
+	"skill_not_loaded_count": 0,
+	"score_percent": 92,
+	"test_case_results": [
+		{
+			"test_case_id": "paragraph_16",
+			"split": "final_check",
+			"source_text": "You can't run the integration tests without Docker, since each test starts its own containers for the DB and the message queue, and the containers are removed automatically after the test finishes, whether it passes or fails.",
+			"rewritten_text": "The integration tests cannot run without Docker.\n\nEach test starts separate containers for the database and message queue. The containers are removed automatically after the test finishes, whether the test passes or fails.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves all facts, conditions, and details from the source without adding anything."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses refused words: whether"
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 4,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_aZG2CK/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 17164
+		},
+		{
+			"test_case_id": "paragraph_17",
+			"split": "final_check",
+			"source_text": "To reduce the size of the bundle, the build tool removes any code that isn't used by the app, but this only works if the libs you import are published as ES modules, so prefer those libs over the ones that only ship CommonJS.",
+			"rewritten_text": "To reduce the bundle size, the build tool removes code that the application does not use. This works only when imported libraries are published as ECMAScript modules. Prefer libraries published as ECMAScript modules over libraries published only as CommonJS modules.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves the bundle-size goal, removal of unused code, the requirement for imported libraries to be published as ECMAScript modules, and the preference over libraries that only publish CommonJS modules."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 5,
+			"evidence": "command: /bin/zsh -lc 'cat /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_aZG2CK/.agents/skills/simplified-technical-english-rewrite/SKILL.md'",
+			"error_message": null,
+			"duration_milliseconds": 24956
+		},
+		{
+			"test_case_id": "paragraph_18",
+			"split": "final_check",
+			"source_text": "The feature flag service lets you enable a new feature for a subset of users, e.g. only for internal staff, and it's strongly recommended to leave a flag on for at least a week before you remove it, in order to be able to switch the feature off quickly if something goes wrong.",
+			"rewritten_text": "The feature flag service can enable a new feature for some users, such as internal staff.\n\nIt is strongly recommended to keep the flag enabled for at least one week before removing it. This makes it possible to switch off the feature quickly if something goes wrong.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves all facts, the example, the recommendation, the one-week duration, and the reason for keeping the flag enabled."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 5,
+			"evidence": "command: /bin/zsh -lc 'cat /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/.agents/skills/simplified-technical-english-rewrite/SKILL.md'\ncommand: /bin/zsh -lc 'cat .agents/skills/simplified-technical-english-rewrite/SKILL.md'",
+			"error_message": null,
+			"duration_milliseconds": 26441
+		},
+		{
+			"test_case_id": "paragraph_19",
+			"split": "final_check",
+			"source_text": "Passwords are hashed with bcrypt before they're stored in the DB, and the app never logs them or sends them to any third-party service, so even an admin who has full access to the DB can't read a user's password.",
+			"rewritten_text": "The application hashes passwords with bcrypt before it stores them in the database. It never logs passwords or sends them to a third-party service. Therefore, an administrator with full database access cannot read a user's password.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves all facts, conditions, and conclusions from the source without adding any new information."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 5,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_aZG2CK/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 19759
+		},
+		{
+			"test_case_id": "paragraph_20",
+			"split": "final_check",
+			"source_text": "If the deploy job hangs for more than 15 min, cancel it from the CI dashboard, check the status page of our cloud provider for any ongoing incident, and only then start the job again, because a second deploy that runs in parallel with the first might leave the servers in an inconsistent state.",
+			"rewritten_text": "If the deployment job hangs for more than 15 minutes, cancel it from the continuous integration dashboard.\n\nCheck the cloud provider status page for an ongoing incident. Only then start the deployment job again.\n\nA second deployment that runs in parallel with the first deployment might leave the servers in an inconsistent state.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves all facts, conditions, numbers, sequence, and the warning about running a second deployment in parallel."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses refused words: might"
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 4,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_aZG2CK/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 26202
+		}
+	]
+}

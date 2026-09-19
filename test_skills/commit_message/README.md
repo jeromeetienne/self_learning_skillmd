@@ -100,3 +100,14 @@ A typical answer of the weak skill is `Document the clear command in the README`
 
 - The first run used the first rules, which were too easy: only `conventional_type` failed, 4 of 15.
 - The second run uses the house rules and the branch names. No test case passes every rule, and `why_line` passes 0 of 15.
+
+## OPRO runs
+
+Each run used Codex with `gpt-5.6-luna`, 3 rounds, and 2 versions in each round. The `optimization` score is the average of the score runs of the version.
+
+| Date | Score runs | First version: `optimization` | Best version: `optimization` | First version: `final_check` | Best version: `final_check` | Commit |
+|---|---|---|---|---|---|---|
+| 2026-09-19 | 1 | 54.4 percent | 100 percent (version 2, round 1) | 50 percent | 100 percent | [057bf2f](https://github.com/jeromeetienne/skillmd_opro/commit/057bf2f) |
+
+- The best version reached 100 percent in round 1, and rounds 2 and 3 added nothing.
+- The test is too easy for OPRO: each failure names the rule that it breaks, so the proposer copies the rules instead of discovering them.

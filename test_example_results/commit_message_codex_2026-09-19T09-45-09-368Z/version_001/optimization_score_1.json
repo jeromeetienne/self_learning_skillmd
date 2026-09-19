@@ -1,0 +1,687 @@
+{
+	"harness_name": "codex",
+	"model_name": "gpt-5.6-luna",
+	"skills_folder_path": "/Users/jetienne/webwork/skillmd_opro/outputs/opro/commit_message_codex_2026-09-19T09-45-09-368Z/version_001/skills",
+	"target_skill_text": "---\nname: commit-message\ndescription: Writes the git commit message for the staged changes. Use when the user asks for a commit message.\n---\n\n# Commit message\n\nRead the staged changes with `git diff --staged` before writing the message.\n\nWrite a Conventional Commit message with this structure:\n\n```text\ntype: short imperative description, #ISSUE\n\nWhy: explain the user-visible reason for the change.\n\nOptional details about the implementation.\n\nfixes #ISSUE\n```\n\nRules:\n\n- Use a valid type such as `feat`, `fix`, `refactor`, `docs`, `test`, `build`, or `chore`, followed by `: `.\n- Keep the entire first line at 50 characters or fewer.\n- If an issue number is provided by the user or appears in the branch name, end the first line exactly with `, #N`.\n- Use a concise imperative description. Omit unnecessary words to stay within 50 characters.\n- Leave the second line blank.\n- Make the third line begin exactly with `Why: `.\n- Include `fixes #N` as the final line, using lowercase `fixes`, only when the change fixes issue `#N`.\n- Do not add a closing line when the change merely relates to an issue or does not fix the issue.\n- If no issue number is available, omit the issue suffix and the closing line.\n- Return only the commit message, without quotation marks or commentary.\n\nExamples:\n\n```text\nfix: handle missing task index, #12\n\nWhy: prevent the done command from failing silently.\n\nfixes #12\n```\n\n```text\nfeat: add task priority, #18\n\nWhy: let users organise tasks by importance.\n```\n\n```text\nrefactor: extract usage text, #25\n\nWhy: keep command help text in one reusable constant.\n```\n",
+	"split_names": [
+		"optimization"
+	],
+	"started_at": "2026-09-19T09:46:22.244Z",
+	"test_case_count": 15,
+	"perfect_test_case_count": 11,
+	"rule_check_count": 90,
+	"passed_rule_check_count": 84,
+	"passed_count_by_rule": {
+		"conventional_type": 15,
+		"first_line_length": 15,
+		"issue_suffix": 11,
+		"why_line": 15,
+		"fixes_last_line": 13,
+		"no_attribution": 15
+	},
+	"error_count": 0,
+	"skill_not_loaded_count": 0,
+	"score_percent": 93.3,
+	"test_case_results": [
+		{
+			"test_case_id": "fix_issue_01",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nThis change fixes issue #12: the done command crashed with a TypeError when the index did not exist.",
+			"final_text": "fix: handle missing task index, #12\n\nWhy: prevent the done command from crashing when the index does not exist.\n\nfixes #12",
+			"commit_message": "fix: handle missing task index, #12\n\nWhy: prevent the done command from crashing when the index does not exist.\n\nfixes #12",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_Cya6YB/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 11364
+		},
+		{
+			"test_case_id": "fix_issue_02",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\n`todo delete abc` did nothing and printed nothing. After this change the bug is gone.",
+			"final_text": "fix: validate delete task index\n\nWhy: report invalid task indexes instead of failing silently.",
+			"commit_message": "fix: validate delete task index\n\nWhy: report invalid task indexes instead of failing silently.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": false,
+					"failure_reason": "the first line does not end with \", #15\": fix: validate delete task index"
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": false,
+					"failure_reason": "the change fixes the issue #15, but the last line is not \"fixes #15\": Why: report invalid task indexes instead of failing silently."
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 4,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_YTt7I2/.agents/skills/commit-message/SKILL.md\"\ncommand: /bin/zsh -lc 'git diff --staged'",
+			"error_message": null,
+			"duration_milliseconds": 16130
+		},
+		{
+			"test_case_id": "fix_issue_03",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nCloses the bug report #21: a task with an empty title could be added.",
+			"final_text": "fix: reject empty task titles, #21\n\nWhy: prevent tasks without titles from being added.\n\nfixes #21",
+			"commit_message": "fix: reject empty task titles, #21\n\nWhy: prevent tasks without titles from being added.\n\nfixes #21",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_I0LTbH/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 11489
+		},
+		{
+			"test_case_id": "fix_issue_04",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nAn unknown command printed the usage and exited with code 0, so scripts did not see the error. This is the fix.",
+			"final_text": "fix: fail unknown commands with an error\n\nWhy: ensure scripts detect invalid commands instead of treating usage output as success.",
+			"commit_message": "fix: fail unknown commands with an error\n\nWhy: ensure scripts detect invalid commands instead of treating usage output as success.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": false,
+					"failure_reason": "the first line does not end with \", #9\": fix: fail unknown commands with an error"
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": false,
+					"failure_reason": "the change fixes the issue #9, but the last line is not \"fixes #9\": Why: ensure scripts detect invalid commands instead of treating usage output as success."
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 4,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_B9zVjY/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 8682
+		},
+		{
+			"test_case_id": "issue_not_fixed_01",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nFirst step only: the command line does not use the priority yet. That comes in a later commit.",
+			"final_text": "feat: add priority to tasks\n\nWhy: store task priority for later command-line support.",
+			"commit_message": "feat: add priority to tasks\n\nWhy: store task priority for later command-line support.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": false,
+					"failure_reason": "the first line does not end with \", #18\": feat: add priority to tasks"
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 5,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_1SFkoA/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 11761
+		},
+		{
+			"test_case_id": "issue_not_fixed_02",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nWork on #22. The issue also asks for a --done option, which I will add later.",
+			"final_text": "feat: add pending task filter, #22\n\nWhy: let users list only unfinished tasks.",
+			"commit_message": "feat: add pending task filter, #22\n\nWhy: let users list only unfinished tasks.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_lPqCmd/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 12174
+		},
+		{
+			"test_case_id": "issue_not_fixed_03",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nPreparation for the help command, which will use the usage text again. No change in behavior.",
+			"final_text": "refactor: extract usage text\n\nWhy: prepare the usage text for reuse by the help command.",
+			"commit_message": "refactor: extract usage text\n\nWhy: prepare the usage text for reuse by the help command.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": false,
+					"failure_reason": "the first line does not end with \", #25\": refactor: extract usage text"
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 5,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_Xx8yVR/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 10637
+		},
+		{
+			"test_case_id": "issue_not_fixed_04",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nThis resolves the first part of #31: a test for add and list. The other commands still need tests.",
+			"final_text": "test: cover add and list commands, #31\n\nWhy: verify task creation and listing preserve titles and due dates.",
+			"commit_message": "test: cover add and list commands, #31\n\nWhy: verify task creation and listing preserve titles and due dates.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_RcZOHT/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 16813
+		},
+		{
+			"test_case_id": "issue_not_fixed_05",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nDocumentation for the JSON output, as discussed in #33. The issue also asks for a JSON schema, which is not in this change.",
+			"final_text": "docs: document JSON output, #33\n\nWhy: explain the JSON array and task fields.",
+			"commit_message": "docs: document JSON output, #33\n\nWhy: explain the JSON array and task fields.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_aI92ov/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 10262
+		},
+		{
+			"test_case_id": "no_issue_01",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nWrite the commit message, please.",
+			"final_text": "feat: show task count\n\nWhy: help users see the total number of tasks.",
+			"commit_message": "feat: show task count\n\nWhy: help users see the total number of tasks.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_HHJxAW/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 8762
+		},
+		{
+			"test_case_id": "no_issue_02",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nThere is no issue for this one. It is only a rename.",
+			"final_text": "refactor: rename task storage variable\n\nWhy: clarify the task list variable name.",
+			"commit_message": "refactor: rename task storage variable\n\nWhy: clarify the task list variable name.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_Ferkyx/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached --summary && git diff --cached --name-status\"\ncommand: /bin/zsh -lc 'git diff --staged -- src/index.ts'",
+			"error_message": null,
+			"duration_milliseconds": 13119
+		},
+		{
+			"test_case_id": "no_issue_03",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nI added an install section to the README.",
+			"final_text": "docs: add installation instructions\n\nWhy: help users install the command line tool.",
+			"commit_message": "docs: add installation instructions\n\nWhy: help users install the command line tool.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_QFpF00/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached -- README.md\"",
+			"error_message": null,
+			"duration_milliseconds": 8718
+		},
+		{
+			"test_case_id": "no_issue_04",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nA small bug that I saw while testing: an empty list printed nothing at all. There is no issue for it.",
+			"final_text": "fix: show message for empty task lists\n\nWhy: make empty list output visible to users.",
+			"commit_message": "fix: show message for empty task lists\n\nWhy: make empty list output visible to users.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_bRVhzx/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 11439
+		},
+		{
+			"test_case_id": "no_issue_05",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nNothing uses this file any more.",
+			"final_text": "chore: remove obsolete storage file\n\nWhy: nothing uses the legacy storage file anymore.",
+			"commit_message": "chore: remove obsolete storage file\n\nWhy: nothing uses the legacy storage file anymore.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_jZIQm9/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 13440
+		},
+		{
+			"test_case_id": "no_issue_06",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.",
+			"final_text": "test: cover completing a task\n\nWhy: verify completing a task marks it as done.",
+			"commit_message": "test: cover completing a task\n\nWhy: verify completing a task marks it as done.",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 6,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/commit_message_9HD9as/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"duration_milliseconds": 9151
+		}
+	]
+}

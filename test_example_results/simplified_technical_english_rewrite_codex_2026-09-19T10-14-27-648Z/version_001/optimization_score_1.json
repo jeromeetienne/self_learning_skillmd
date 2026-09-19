@@ -1,0 +1,656 @@
+{
+	"harness_name": "codex",
+	"model_name": "gpt-5.6-luna",
+	"skills_folder_path": "/Users/jetienne/webwork/skillmd_opro/outputs/opro/simplified_technical_english_rewrite_codex_2026-09-19T10-14-27-648Z/version_001/skills",
+	"target_skill_text": "---\nname: simplified-technical-english-rewrite\ndescription: Rewrites a text in ASD-STE100 Simplified Technical English. Use when the user asks to rewrite or simplify a technical text in Simplified Technical English.\n---\n\n# Simplified Technical English rewrite\n\nRewrite the text in Simplified Technical English.\n\nRules:\n\n- Keep every fact, number, condition, warning, limitation, and instruction.\n- Do not add information, explanations, causes, or recommendations.\n- Use short, direct sentences. Use no more than 20 words in one sentence.\n- Use one sentence for one main action or condition.\n- Use active voice when the actor is known.\n- Use the same technical term for the same thing.\n- Replace complex words with common words.\n- Do not use `you`, `your`, or other direct references to the reader. Name the person, user, operator, or system.\n- Write abbreviations in full. For example, write “application programming interface” instead of “API”, “uniform resource locator” instead of “URL”, and “continuous integration” instead of “CI”.\n- Do not use informal shortened words such as “app”. Use “application”.\n- Do not use vague or refused words such as “very” or “approximately”. Keep the exact meaning with a precise statement from the source.\n- Keep code names, variable names, header names, commands, file names, and placeholders unchanged.\n- Keep times and units unchanged unless the source gives an expanded form. Write “Coordinated Universal Time” instead of “UTC” when the meaning permits.\n- Use “must” for a required action, “can” for a permitted or possible action, and “cannot” for a prohibited or impossible action.\n- Keep the original order when the order affects the result.\n- Check the rewrite against the source after writing it.\n\nExample:\n\nSource: “Before you open a pull request, make sure that all unit tests pass locally and that the linter reports no warnings.”\n\nRewrite: “Before a pull request is opened, all unit tests must pass locally. The linter must report no warnings.”\n\nSource: “If two users edit the same list at the same time, one user can overwrite the other user's changes without knowing it.”\n\nRewrite: “If two users edit the same list at the same time, one user can overwrite the other user’s changes without knowing it.”\n",
+	"split_names": [
+		"optimization"
+	],
+	"started_at": "2026-09-19T10:15:49.875Z",
+	"test_case_count": 15,
+	"perfect_test_case_count": 4,
+	"rule_check_count": 75,
+	"passed_rule_check_count": 58,
+	"passed_count_by_rule": {
+		"sentence_length": 10,
+		"no_abbreviation": 12,
+		"no_you": 15,
+		"refused_words": 9,
+		"meaning_kept": 12
+	},
+	"error_count": 0,
+	"skill_not_loaded_count": 0,
+	"score_percent": 77.3,
+	"test_case_results": [
+		{
+			"test_case_id": "paragraph_01",
+			"split": "optimization",
+			"source_text": "To get started, you'll need to clone the repo and install the deps via npm. Make sure your env vars are set up correctly, e.g. the API key and the DB URL, otherwise the app won't be able to connect to the server and you might see a bunch of confusing errors in the console.",
+			"rewritten_text": "To start, clone the repository and install the dependencies with npm. Set the environment variables correctly, including the application programming interface key and database uniform resource locator. Otherwise, the application cannot connect to the server, and the console can show many confusing errors.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves all instructions, conditions, examples, and possible or certain results from the source without adding facts."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 5,
+			"evidence": "command: /bin/zsh -lc 'cat /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md'",
+			"error_message": null,
+			"duration_milliseconds": 19219
+		},
+		{
+			"test_case_id": "paragraph_02",
+			"split": "optimization",
+			"source_text": "The CLI caches the auth token in your home dir so that you don't have to log in every time you run a command, but if the token expires or is revoked by an admin you'll have to run the login command again to obtain a new one.",
+			"rewritten_text": "The command-line interface caches the authentication token in the home directory. This prevents a user from logging in each time a command runs. If the token expires or an administrator revokes the token, the user must run the login command again to obtain a new token.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite keeps all facts, conditions, and instructions from the source, with only expanded terms and equivalent wording."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": false,
+					"failure_reason": "1 sentences have more than 20 words, such as: If the token expires or an administrator revokes the token, the user must run the login command again to obtain a new token."
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses refused words: obtain"
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 3,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' '/private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md'\"",
+			"error_message": null,
+			"duration_milliseconds": 16259
+		},
+		{
+			"test_case_id": "paragraph_03",
+			"split": "optimization",
+			"source_text": "Before opening a PR, please ensure that all unit tests pass locally and that the linter doesn't report any warnings, since the CI pipeline will reject any PR that fails either of these checks and a reviewer won't look at it until it's green.",
+			"rewritten_text": "Before a pull request is opened, all unit tests must pass locally. The linter must report no warnings. The continuous integration pipeline will reject a pull request that fails either check. A reviewer will not review the pull request until both checks pass.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves all requirements, conditions, and consequences from the source."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 5,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 15429
+		},
+		{
+			"test_case_id": "paragraph_04",
+			"split": "optimization",
+			"source_text": "Config files are loaded in the following order: the global config in /etc, then the user config in your home dir, and finally the project config in the repo root, with each subsequent file overriding any values that were set by the previous ones.",
+			"rewritten_text": "Configuration files load in this order: the global configuration in /etc, the user configuration in the user home directory, and the project configuration in the repository root. Each later file overrides values set by the previous file.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves the loading order, file locations, and override rule from the source."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": false,
+					"failure_reason": "1 sentences have more than 20 words, such as: Configuration files load in this order: the global configuration in /etc, the user configuration in the user home directory, and the project configuration in the repository root."
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 4,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 20526
+		},
+		{
+			"test_case_id": "paragraph_05",
+			"split": "optimization",
+			"source_text": "If the build fails with an out-of-memory error, you can try to increase the max heap size of the JVM via the JAVA_OPTS env var, although in most cases the real problem is a memory leak in one of the tests, which you should fix instead.",
+			"rewritten_text": "If the build fails because of an out-of-memory error, the JAVA_OPTS environment variable can increase the Java Virtual Machine maximum heap size. In most cases, a memory leak in one of the tests is the actual problem. The memory leak should be fixed instead.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves the failure condition, the Java Virtual Machine heap-size change using JAVA_OPTS, the usual memory-leak cause, and the instruction to fix the leak instead."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": false,
+					"failure_reason": "1 sentences have more than 20 words, such as: If the build fails because of an out-of-memory error, the JAVA_OPTS environment variable can increase the Java Virtual Machine maximum heap size."
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses refused words: should"
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 3,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 16809
+		},
+		{
+			"test_case_id": "paragraph_06",
+			"split": "optimization",
+			"source_text": "The API returns a 429 status code when a client sends more than approx. 100 requests per min, and it's the client's responsibility to wait for the number of seconds given in the Retry-After header before it retries the request.",
+			"rewritten_text": "The application programming interface returns a 429 status code when a client sends more than 100 requests per min. The client must wait for the number of seconds in the Retry-After header before it retries the request.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": false,
+				"reason": "The rewrite changes the approximate threshold of more than about 100 requests per minute to an exact threshold of more than 100 requests per minute."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses abbreviations: min"
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": false,
+					"failure_reason": "The rewrite changes the approximate threshold of more than about 100 requests per minute to an exact threshold of more than 100 requests per minute."
+				}
+			],
+			"passed_rule_count": 3,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 21232
+		},
+		{
+			"test_case_id": "paragraph_07",
+			"split": "optimization",
+			"source_text": "We're deprecating the v1 endpoints in the next release, so all clients that still use them should migrate to v2 as soon as possible, because after the release the v1 endpoints will return an error and we won't provide any additional support for them.",
+			"rewritten_text": "The v1 endpoints will be deprecated in the next release. Clients that use v1 endpoints must migrate to v2 as soon as possible. After the release, v1 endpoints will return an error. Additional support for v1 endpoints will not be provided.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves the deprecation timing, migration instruction for all v1 users, error condition after release, and lack of additional support."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses refused words: additional"
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 4,
+			"evidence": "command: /bin/zsh -lc 'cat /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md'",
+			"error_message": null,
+			"duration_milliseconds": 15759
+		},
+		{
+			"test_case_id": "paragraph_08",
+			"split": "optimization",
+			"source_text": "To restore a DB backup, stop the app first, then run the restore script with the path of the backup file as its only argument, and wait until the script prints \"done\" before you start the app again, since starting it earlier might corrupt the data.",
+			"rewritten_text": "To restore a database backup, stop the application first. Run the restore script with the backup file path as its only argument. Wait until the script prints \"done\" before starting the application again. Starting the application earlier might corrupt the data.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves every instruction, condition, sequence, and warning from the source, with only equivalent wording changes."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses refused words: might"
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 4,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 15997
+		},
+		{
+			"test_case_id": "paragraph_09",
+			"split": "optimization",
+			"source_text": "The UI doesn't update automatically when another user changes a task, so if two people are editing the same list at the same time, one of them might overwrite the other's changes without noticing it, which is a known issue that we plan to fix in Q3.",
+			"rewritten_text": "The user interface does not update automatically when another user changes a task. If two users edit the same list at the same time, one user can overwrite the other user's changes. The user might not notice the overwrite. This is a known issue. We plan to fix this issue in Q3.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves all facts, conditions, uncertainty, and the Q3 fix plan from the source."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses refused words: might"
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 4,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 20088
+		},
+		{
+			"test_case_id": "paragraph_10",
+			"split": "optimization",
+			"source_text": "Logs are written to stdout in JSON format and are collected by the log agent that runs on each node, which forwards them to the central log server where they are kept for 30 days before they're deleted automatically.",
+			"rewritten_text": "Logs are written to stdout in JSON format. The log agent on each node collects and forwards the logs to the central log server. The central log server keeps the logs for 30 days and then deletes them automatically.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves that logs are written in JSON to stdout, collected and forwarded by the log agent on each node, kept by the central log server for 30 days, and then deleted automatically."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses abbreviations: JSON, stdout"
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 4,
+			"evidence": "command: /bin/zsh -lc 'cat /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md'",
+			"error_message": null,
+			"duration_milliseconds": 19830
+		},
+		{
+			"test_case_id": "paragraph_11",
+			"split": "optimization",
+			"source_text": "When you add a new dependency, pin it to an exact version in package.json rather than using a caret range, since an unexpected minor update of a third-party lib has broken our prod build twice in the last year.",
+			"rewritten_text": "When a new dependency is added, package.json must specify an exact version. Do not use a caret range. An unexpected minor update of a third-party library has broken the production build twice in the last year.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves the instruction to use an exact dependency version instead of a caret range and preserves the reason that an unexpected minor update broke the production build twice in the last year."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 5,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 18215
+		},
+		{
+			"test_case_id": "paragraph_12",
+			"split": "optimization",
+			"source_text": "The search index is rebuilt every night at 2 a.m. UTC, which means that docs you publish during the day won't appear in the search results until the next morning, unless you trigger a manual rebuild from the admin page.",
+			"rewritten_text": "The search index is rebuilt every night at 2 a.m. Coordinated Universal Time. Documents published during the day do not appear in search results until the next morning unless an operator starts a manual rebuild from the admin page.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite preserves the timing, visibility delay, exception for a manual rebuild from the admin page, and the meaning of UTC."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": false,
+					"failure_reason": "1 sentences have more than 20 words, such as: Documents published during the day do not appear in search results until the next morning unless an operator starts a manual rebuild from the admin page."
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses abbreviations: a.m., admin"
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 3,
+			"evidence": "command: /bin/zsh -lc 'cat /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md'",
+			"error_message": null,
+			"duration_milliseconds": 20383
+		},
+		{
+			"test_case_id": "paragraph_13",
+			"split": "optimization",
+			"source_text": "Numerous users have reported that the export feature is very slow for large projects, which is caused by the fact that it performs a separate DB query for every single task instead of loading all tasks with one query.",
+			"rewritten_text": "Many users report that the export feature is slow for large projects. The export feature performs one database query for each task. The export feature does not load all tasks with one query.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": false,
+				"reason": "The rewrite omits that the export feature is very slow and does not explicitly state that the separate queries cause the slowness."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": false,
+					"failure_reason": "the rewrite uses refused words: performs"
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": false,
+					"failure_reason": "The rewrite omits that the export feature is very slow and does not explicitly state that the separate queries cause the slowness."
+				}
+			],
+			"passed_rule_count": 3,
+			"evidence": "command: /bin/zsh -lc 'cat /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/.agents/skills/simplified_technical_english_rewrite/SKILL.md'\ncommand: /bin/zsh -lc 'cat .agents/skills/simplified_technical_english_rewrite/SKILL.md'\ncommand: /bin/zsh -lc \"pwd; rg --files -g 'SKILL.md' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn 2>/dev/null | head -20\"\ncommand: /bin/zsh -lc 'ls -la; ls -la .agents 2>&1; ls -la /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents 2>&1'\ncommand: /bin/zsh -lc 'find .agents -maxdepth 5 -type f -print'\ncommand: /bin/zsh -lc 'cat .agents/skills/simplified-technical-english-rewrite/SKILL.md'",
+			"error_message": null,
+			"duration_milliseconds": 45474
+		},
+		{
+			"test_case_id": "paragraph_14",
+			"split": "optimization",
+			"source_text": "If you'd like to contribute a translation, copy the English strings file, rename it with the code of your language, e.g. fr.json for French, and translate each value while leaving the keys unchanged, because the app uses the keys to find each string.",
+			"rewritten_text": "To contribute a translation, copy the English strings file. Rename the copy with the language code, for example, fr.json for French. Translate each value and leave the keys unchanged. The application uses the keys to find each string.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": true,
+				"reason": "The rewrite keeps the contribution condition, all instructions, the French filename example, and the reason for leaving the keys unchanged."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 5,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 20842
+		},
+		{
+			"test_case_id": "paragraph_15",
+			"split": "optimization",
+			"source_text": "SSH access to the prod servers is restricted to members of the ops team, and all other engineers who need to inspect a server should ask the on-call engineer to perform the task for them or to grant them temporary access for a max of 4 hours.",
+			"rewritten_text": "Only operations team members can access the production servers through Secure Shell. Other engineers must ask the on-call engineer to inspect a server or grant temporary access for a maximum of 4 hours.",
+			"is_skill_loaded": true,
+			"meaning_judgment": {
+				"is_meaning_kept": false,
+				"reason": "The rewrite removes the condition that other engineers need to inspect a server, so it incorrectly requires all other engineers to ask the on-call engineer."
+			},
+			"rule_checks": [
+				{
+					"rule_name": "sentence_length",
+					"is_passed": false,
+					"failure_reason": "1 sentences have more than 20 words, such as: Other engineers must ask the on-call engineer to inspect a server or grant temporary access for a maximum of 4 hours."
+				},
+				{
+					"rule_name": "no_abbreviation",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_you",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "refused_words",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "meaning_kept",
+					"is_passed": false,
+					"failure_reason": "The rewrite removes the condition that other engineers need to inspect a server, so it incorrectly requires all other engineers to ask the on-call engineer."
+				}
+			],
+			"passed_rule_count": 3,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/simplified_technical_english_rewrite_qBqSPg/.agents/skills/simplified-technical-english-rewrite/SKILL.md\"",
+			"error_message": null,
+			"duration_milliseconds": 24989
+		}
+	]
+}
