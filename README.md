@@ -32,6 +32,7 @@ Each test skill starts weak on purpose, so that OPRO has room to improve it.
 
 ## Layout
 
+- `opro/`: the OPRO loop, which improves the target skill of one test skill. See [opro/src/CONTEXT.md](opro/src/CONTEXT.md).
 - `test_skills/`: one folder for each test skill, with its skills, its test cases, and a `playground/` folder where you start `claude` or `codex`. See its [CONTEXT.md](test_skills/CONTEXT.md).
 
 ## Commands
@@ -40,6 +41,7 @@ Each test skill starts weak on purpose, so that OPRO has room to improve it.
 - `pnpm run score_the_skill_choice --harness <claude|codex>`: scores the skill choice test. See [test_skills/skill_choice/src/CONTEXT.md](test_skills/skill_choice/src/CONTEXT.md).
 - `pnpm run score_the_commit_message --harness <claude|codex>`: scores the commit message test. See [test_skills/commit_message/src/CONTEXT.md](test_skills/commit_message/src/CONTEXT.md).
 - `pnpm run score_the_simplified_technical_english_rewrite --harness <claude|codex>`: scores the Simplified Technical English rewrite test. See [test_skills/simplified_technical_english_rewrite/src/CONTEXT.md](test_skills/simplified_technical_english_rewrite/src/CONTEXT.md).
+- `pnpm run run_opro --test-skill <test skill name> --harness <claude|codex>`: runs the OPRO loop on one test skill. See [opro/src/CONTEXT.md](opro/src/CONTEXT.md).
 - `pnpm run typecheck`: checks the types.
 
 ## Rules

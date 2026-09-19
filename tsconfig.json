@@ -17,7 +17,8 @@
 		"skipLibCheck": true
 	},
 	"include": [
-		"test_skills/**/*.ts"
+		"test_skills/**/*.ts",
+		"opro/**/*.ts"
 	],
 	"exclude": [
 		"test_skills/*/base_project/**"
