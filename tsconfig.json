@@ -18,7 +18,8 @@
 	},
 	"include": [
 		"test_skills/**/*.ts",
-		"opro/**/*.ts"
+		"opro/**/*.ts",
+		"opro_tools/**/*.ts"
 	],
 	"exclude": [
 		"test_skills/*/base_project/**"

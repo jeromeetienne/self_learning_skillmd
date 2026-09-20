@@ -1,0 +1,26 @@
+{
+	"target_skill_name": "commit-message",
+	"skill_part_name": "body",
+	"skills_folder_path": "dotagents_folder/skills",
+	"user_message_prefix": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.",
+	"claude_allowed_tool_names": [
+		"Skill",
+		"Read",
+		"Glob",
+		"Grep",
+		"Bash(git diff:*)",
+		"Bash(git status:*)",
+		"Bash(git log:*)",
+		"Bash(git show:*)"
+	],
+	"timeout_milliseconds": 300000,
+	"workspace_recipe": {
+		"copy_folder_path": "base_project",
+		"git_repository": {
+			"initial_branch_name": "main",
+			"first_commit_message": "Create todo-cli with the add, done, delete, and list commands",
+			"commit_date": "2026-06-10T10:00:00.000Z",
+			"stage_file_changes": true
+		}
+	}
+}

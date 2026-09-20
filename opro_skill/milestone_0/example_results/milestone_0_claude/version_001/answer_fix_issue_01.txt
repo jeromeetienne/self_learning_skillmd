@@ -1,0 +1,5 @@
+fix: guard completeTask against bad index, #12
+
+Why: completeTask threw a TypeError instead of a clear error when given an index with no matching task.
+
+fixes #12

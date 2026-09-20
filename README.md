@@ -43,6 +43,8 @@ In each run, OPRO found its big improvement in round 1. Later rounds did not bea
 ## Layout
 
 - `opro/`: the OPRO loop, which improves the target skill of one test skill. See [opro/src/CONTEXT.md](opro/src/CONTEXT.md).
+- `opro_skill/`: the OPRO optimizer skill, the `SKILL.md` file that runs the OPRO loop inside the harness. See its [CONTEXT.md](opro_skill/CONTEXT.md).
+- `opro_tools/`: the npm package `skillmd_opro_tools`, the generic tools that the OPRO optimizer skill runs with `npx`. See its [CONTEXT.md](opro_tools/CONTEXT.md).
 - `test_example_results/`: a copy of the run folders of the OPRO runs of the "OPRO results" section, with every version and every score file.
 - `test_skills/`: one folder for each test skill, with its skills, its test cases, and a `playground/` folder where you start `claude` or `codex`. See its [CONTEXT.md](test_skills/CONTEXT.md).
 
@@ -53,6 +55,7 @@ In each run, OPRO found its big improvement in round 1. Later rounds did not bea
 - `pnpm run score_the_commit_message --harness <claude|codex>`: scores the commit message test. See [test_skills/commit_message/src/CONTEXT.md](test_skills/commit_message/src/CONTEXT.md).
 - `pnpm run score_the_simplified_technical_english_rewrite --harness <claude|codex>`: scores the Simplified Technical English rewrite test. See [test_skills/simplified_technical_english_rewrite/src/CONTEXT.md](test_skills/simplified_technical_english_rewrite/src/CONTEXT.md).
 - `pnpm run run_opro --test-skill <test skill name> --harness <claude|codex>`: runs the OPRO loop on one test skill. See [opro/src/CONTEXT.md](opro/src/CONTEXT.md).
+- `npx skillmd_opro_tools <tool name> ...`: runs one generic tool of the OPRO optimizer skill. See [opro_tools/src/CONTEXT.md](opro_tools/src/CONTEXT.md).
 - `pnpm run copy_opro_results_to_test_example_results`: copies every run folder of `outputs/opro/` into `test_example_results/`, so that git keeps them.
 - `pnpm run typecheck`: checks the types.
 

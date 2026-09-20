@@ -1,0 +1,15 @@
+{
+	"name": "skillmd_opro_tools",
+	"version": "0.0.0",
+	"private": true,
+	"description": "The generic tools of the OPRO optimizer skill. It holds no code that is specific to one target skill.",
+	"type": "module",
+	"bin": {
+		"skillmd_opro_tools": "./bin/skillmd_opro_tools.mjs"
+	},
+	"dependencies": {
+		"commander": "^15.0.0",
+		"tsx": "^4.23.13",
+		"zod": "^4.6.5"
+	}
+}

@@ -1,0 +1,5 @@
+Fix crash in `completeTask` when index does not exist (#12)
+
+Throw a descriptive error instead of a raw TypeError when accessing an undefined task.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

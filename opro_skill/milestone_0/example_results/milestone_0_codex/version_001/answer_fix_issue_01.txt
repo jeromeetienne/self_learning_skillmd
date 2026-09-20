@@ -1,0 +1,2 @@
+Handle missing task index in done command
+fixes #12

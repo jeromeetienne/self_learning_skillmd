@@ -1,0 +1,3 @@
+Fix done command crash for missing task index
+
+fixes #12

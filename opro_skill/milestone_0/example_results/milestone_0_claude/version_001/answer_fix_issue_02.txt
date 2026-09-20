@@ -1,0 +1,3 @@
+fix(cli): validate delete command index
+
+Why: delete silently no-opped on non-numeric input, giving no feedback that the task wasn't found.

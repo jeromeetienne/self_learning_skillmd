@@ -1,0 +1,1 @@
+Fix silent failure for invalid task deletion index
