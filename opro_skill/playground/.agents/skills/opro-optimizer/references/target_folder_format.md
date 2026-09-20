@@ -98,3 +98,18 @@ One target skill has one rubric file, so at most one rule has the kind `judge`.
 ## What the rules must never do
 
 The OPRO loop measures whether a `SKILL.md` file can discover the rules from the failures of the test cases. The rules therefore stay out of reach of the proposer: the meta-prompt holds the explanation of the test and the failures, and never `opro_target.json`. A target folder must never put the rules in `test_explanation.md`, and the agent that runs the OPRO optimizer skill must never read `opro_target.json` to write a new version.
+
+## A worked example to copy
+
+The repository `skillmd_opro` holds three target folders that a person copies for a new target skill:
+
+- `test_skills/commit_message/`: the run mode `answer`, a workspace built from a copied folder and a list of commits, and six rules of the kinds `regular_expression_must_match`, `regular_expression_must_not_match`, and `maximum_line_length`.
+- `test_skills/simplified_technical_english_rewrite/`: the run mode `answer`, a workspace with no git repository, and rules of the kinds `refused_patterns`, `maximum_sentence_word_count`, and `judge`, with `judge_rubric.md`.
+- `test_skills/skill_choice/`: the run mode `skill_choice`, a workspace whose commits come from `workspace_commits.json`, and one rule of the kind `expected_answer`.
+
+To write a new target folder, copy the folder that has the nearest run mode, then change, in this order:
+
+1. `dotagents_folder/skills/`: the first version of the skills, with the skill that the OPRO loop improves.
+2. `opro_target.json`: `target_skill_name`, `skill_part_name`, `user_message_prefix`, the workspace recipe, and the rules.
+3. `test_cases.json`: the test cases, with about two thirds in the group `optimization` and one third in the group `final_check`.
+4. `test_explanation.md`: what the test measures, in a few sentences, with no rule in it.
