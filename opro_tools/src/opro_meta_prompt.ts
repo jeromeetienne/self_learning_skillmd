@@ -21,9 +21,15 @@ export class OproMetaPrompt {
 	 *
 	 * @param runRecord The record of the run, with the scored versions.
 	 * @param testExplanation What the test measures, from the file that `opro_target.json` names.
+	 * @param repeatedVersionNumber The version that the proposer repeated word for word in an earlier attempt of the
+	 * same round, or `null` for the first attempt.
 	 * @returns The meta-prompt.
 	 */
-	static build(runRecord: OproRunRecordFile, testExplanation: string): string {
+	static build(
+		runRecord: OproRunRecordFile,
+		testExplanation: string,
+		repeatedVersionNumber: number | null = null,
+	): string {
 		const skillPartName = runRecord.skill_part_name;
 		const scoredVersions = runRecord.versions
 			.filter((versionRecord) => {
@@ -64,6 +70,12 @@ export class OproMetaPrompt {
 			+ 'from every version above and that gets a higher score than every version above. Fix the failures of '
 			+ 'the best version, and keep what it does well.');
 		promptLines.push(OproMetaPrompt._readPartRules(skillPartName));
+		if (repeatedVersionNumber !== null) {
+			promptLines.push(`Your answer of the attempt before this one repeated, word for word, the version that `
+				+ `scored ${OproMetaPrompt._readVersionScore(runRecord, repeatedVersionNumber)}. That version is `
+				+ 'already in the history above, so its score is already known. Write a version that is different '
+				+ 'from every version above.');
+		}
 		promptLines.push('Do not run a command, and do not read a file.');
 		promptLines.push('Reply with the new version only, between a line `<new_version>` and a line `</new_version>`.');
 		return promptLines.join('\n');
@@ -74,6 +86,20 @@ export class OproMetaPrompt {
 	//	Helpers
 	///////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Reads the score of one version of the history, for the message of a repeated answer.
+	 *
+	 * @param runRecord The record of the run.
+	 * @param versionNumber The number of the version.
+	 * @returns The score of the version, in percent, as a text.
+	 */
+	static _readVersionScore(runRecord: OproRunRecordFile, versionNumber: number): string {
+		const versionRecord = runRecord.versions.find((candidateVersion) => {
+			return candidateVersion.version_number === versionNumber;
+		});
+		return versionRecord === undefined ? 'the same score' : `${versionRecord.average_score_percent} percent`;
+	}
 
 	/**
 	 * Writes one version of the history, with its score.

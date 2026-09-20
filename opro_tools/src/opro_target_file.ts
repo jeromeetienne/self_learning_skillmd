@@ -184,6 +184,12 @@ export const OproTargetFileSchema = z.object({
 	rules: z.array(RuleDefinitionSchema).min(1),
 	/** The judge, or `null` when no rule has the kind `judge`. */
 	judge: JudgeDefinitionSchema.nullable().default(null),
+	/**
+	 * How much the score of the same version moves between two runs of the whole `optimization` group, in percent,
+	 * measured one time with the tool `measure-score-noise`, or `null` when nobody measured it yet. Two versions
+	 * whose scores differ by less than this number are not separated by one run each.
+	 */
+	score_noise_percent: z.number().min(0).max(100).nullable().default(null),
 });
 
 /** The whole `opro_target.json` file. */

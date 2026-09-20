@@ -18,6 +18,7 @@ Holds one folder for each test skill: the skills that OPRO improves, the test ca
 - A scoring script never runs a harness inside this repository. It copies the skills into a temporary folder outside the repository, which is a small git repository of its own, and runs the harness there, because an agent in `playground/` reads `../test_cases.json`.
 - Codex runs only `gpt-5.6-luna`, and Claude Code runs only `claude-sonnet-5`. A scoring script always passes the model, and no option changes it.
 - A test skill imports the generic code from `_shared/`, never from another test skill.
+- The field `score_noise_percent` of `opro_target.json` holds a number that `measure-score-noise` measured on the first version of the skills of that folder, never a guessed number. A folder whose number is missing makes the OPRO loop use 8 percent and say so.
 - Each test skill has its own `dotagents_folder/`, so the skills of one test never compete with the skills of another test.
 - A skill folder name equals the `name` field of its `SKILL.md`, and uses lowercase letters, numbers, and hyphens only.
 

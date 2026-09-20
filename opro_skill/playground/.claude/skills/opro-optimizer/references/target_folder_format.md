@@ -30,6 +30,19 @@ A person who wants the OPRO loop to improve one skill writes one folder. The fol
 | `workspace_recipe` | How to build the folder where the harness runs. |
 | `rules` | The rules that every answer must obey. The score is the percentage of rule checks that pass. |
 | `judge` | The rubric file and the timeout of the judge, or `null`. |
+| `score_noise_percent` | How much the score of the same version moves between two runs of the whole `optimization` group, in percent, or `null` when nobody measured it yet. |
+
+### `score_noise_percent`
+
+The OPRO loop needs this number to know when two versions are too close to be separated. Measure it one time for each target folder, with the first version of the skills:
+
+```
+npx skillmd_opro_tools measure-score-noise --harness <name> --target-folder <path> --skills-folder <path>/dotagents_folder/skills --split optimization --run-count 3 --output-folder <path>
+```
+
+The tool scores the same version three times and prints `score_noise_percent`, which is two standard deviations of the score. It reads the standard deviation from the movement of each test case, not only from the three scores of the runs, because three runs of a group of fifteen test cases give forty-five numbers instead of three: the three runs of `commit_message` all scored 55.6 percent while single test cases moved between one and four rules of six, and the movement of the test cases gives 4.1 percent.
+
+Write that number in `opro_target.json`. The measured numbers of this repository are in `test_skills/<name>/opro_target.json`, and both are near 4 percent with Codex on 15 test cases, not the 8 percent that the OPRO loop uses when the number is missing.
 
 ### `workspace_recipe`
 

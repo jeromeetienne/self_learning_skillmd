@@ -35,6 +35,8 @@ export type OproProposal = {
 	metaPromptFilePath: string,
 	/** The reason why the proposer failed, or `null` when it did not. */
 	errorMessage: string | null,
+	/** The number of harness runs that the proposal cost: one for each attempt. */
+	harnessRunCount: number,
 };
 
 /**
@@ -50,11 +52,14 @@ export class OproProposer {
 	 * @param options The options of the proposal.
 	 * @param options.runFolderPath The folder of the run, which holds the scored history.
 	 * @param options.harnessName The harness that proposes.
+	 * @param options.maximumAttemptCount How many times the proposer is asked when it repeats a version of the
+	 * history, because a repeated version costs a score run and adds nothing to the history.
 	 * @returns The proposal.
 	 */
-	static async propose({ runFolderPath, harnessName }: {
+	static async propose({ runFolderPath, harnessName, maximumAttemptCount = 2 }: {
 		runFolderPath: string,
 		harnessName: HarnessName,
+		maximumAttemptCount?: number,
 	}): Promise<OproProposal> {
 		const runRecord = OproRunFolder.readRecord(runFolderPath);
 		const oproTargetFile = OproTargetFileReader.readTargetFile(runRecord.target_folder_path);
@@ -62,17 +67,88 @@ export class OproProposer {
 			Path.resolve(runRecord.target_folder_path, oproTargetFile.test_explanation_file_path),
 			'utf8',
 		);
-		const metaPrompt = OproMetaPrompt.build(runRecord, testExplanation);
 		const metaPromptFilePath = Path.join(runFolderPath, 'meta_prompt.md');
-		Fs.writeFileSync(metaPromptFilePath, metaPrompt + '\n');
-
 		const versionNumber = runRecord.versions.reduce((highestNumber, versionRecord) => {
 			return Math.max(highestNumber, versionRecord.version_number);
 		}, 0) + 1;
+
+		let harnessRunCount = 0;
+		let repeatedVersionNumber: number | null = null;
+		let lastRepeatedProposal: OproProposal | null = null;
+		while (harnessRunCount < maximumAttemptCount) {
+			const metaPrompt = OproMetaPrompt.build(runRecord, testExplanation, repeatedVersionNumber);
+			Fs.writeFileSync(metaPromptFilePath, metaPrompt + '\n');
+			harnessRunCount = harnessRunCount + 1;
+			const harnessRunResult = await OproProposer._runProposer(harnessName, metaPrompt);
+
+			if (harnessRunResult.errorMessage !== null) {
+				OproRunFolder.writeProposal(runFolderPath, versionNumber, harnessRunCount);
+				return OproProposer._buildFailure(versionNumber, metaPromptFilePath, harnessRunCount,
+					`the proposer failed: ${harnessRunResult.errorMessage}`);
+			}
+			if (harnessRunResult.finalText === null) {
+				OproRunFolder.writeProposal(runFolderPath, versionNumber, harnessRunCount);
+				return OproProposer._buildFailure(versionNumber, metaPromptFilePath, harnessRunCount,
+					'the proposer gave no answer');
+			}
+			const skillPartText = OproSkillFile.readProposedPart(
+				harnessRunResult.finalText, oproTargetFile.skill_part_name);
+			if (skillPartText === '') {
+				OproRunFolder.writeProposal(runFolderPath, versionNumber, harnessRunCount);
+				return OproProposer._buildFailure(versionNumber, metaPromptFilePath, harnessRunCount,
+					`the answer of the proposer holds no ${oproTargetFile.skill_part_name}`);
+			}
+
+			const sameVersion = runRecord.versions.find((versionRecord) => {
+				return versionRecord.skill_part_text.trim() === skillPartText.trim();
+			});
+			const proposal: OproProposal = {
+				versionNumber: versionNumber,
+				skillsFolderPath: null,
+				skillPartText: skillPartText,
+				sameAsVersionNumber: sameVersion === undefined ? null : sameVersion.version_number,
+				metaPromptFilePath: metaPromptFilePath,
+				errorMessage: null,
+				harnessRunCount: harnessRunCount,
+			};
+			OproRunFolder.writeProposal(runFolderPath, versionNumber, harnessRunCount);
+			if (sameVersion === undefined) {
+				return {
+					...proposal,
+					skillsFolderPath: OproRunFolder.writeVersion({
+						runFolderPath: runFolderPath,
+						versionNumber: versionNumber,
+						oproTargetFile: oproTargetFile,
+						skillPartText: skillPartText,
+					}),
+				};
+			}
+			repeatedVersionNumber = sameVersion.version_number;
+			lastRepeatedProposal = proposal;
+		}
+		return lastRepeatedProposal as OproProposal;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////
+	//	Helpers
+	///////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Runs one attempt of the proposer in an empty git repository with no skill, and removes that folder after it.
+	 *
+	 * @param harnessName The harness that proposes.
+	 * @param metaPrompt The meta-prompt, which is the whole message of the proposer.
+	 * @returns The result of the harness run.
+	 */
+	static async _runProposer(harnessName: HarnessName, metaPrompt: string): Promise<{
+		finalText: string | null,
+		errorMessage: string | null,
+	}> {
 		const proposerFolderPath = OproProposer._createProposerFolder();
-		let harnessRunResult;
 		try {
-			harnessRunResult = await HarnessRun.runToEnd({
+			return await HarnessRun.runToEnd({
 				harnessName: harnessName,
 				workingFolderPath: proposerFolderPath,
 				userMessage: metaPrompt,
@@ -85,44 +161,7 @@ export class OproProposer {
 				force: true,
 			});
 		}
-
-		if (harnessRunResult.errorMessage !== null) {
-			return OproProposer._buildFailure(versionNumber, metaPromptFilePath,
-				`the proposer failed: ${harnessRunResult.errorMessage}`);
-		}
-		if (harnessRunResult.finalText === null) {
-			return OproProposer._buildFailure(versionNumber, metaPromptFilePath, 'the proposer gave no answer');
-		}
-		const skillPartText = OproSkillFile.readProposedPart(
-			harnessRunResult.finalText, oproTargetFile.skill_part_name);
-		if (skillPartText === '') {
-			return OproProposer._buildFailure(versionNumber, metaPromptFilePath,
-				`the answer of the proposer holds no ${oproTargetFile.skill_part_name}`);
-		}
-
-		const sameVersion = runRecord.versions.find((versionRecord) => {
-			return versionRecord.skill_part_text.trim() === skillPartText.trim();
-		});
-		return {
-			versionNumber: versionNumber,
-			skillsFolderPath: OproRunFolder.writeVersion({
-				runFolderPath: runFolderPath,
-				versionNumber: versionNumber,
-				oproTargetFile: oproTargetFile,
-				skillPartText: skillPartText,
-			}),
-			skillPartText: skillPartText,
-			sameAsVersionNumber: sameVersion === undefined ? null : sameVersion.version_number,
-			metaPromptFilePath: metaPromptFilePath,
-			errorMessage: null,
-		};
 	}
-
-	///////////////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////////
-	//	Helpers
-	///////////////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Creates the empty git repository with no skill where the proposer runs.
@@ -140,10 +179,16 @@ export class OproProposer {
 	 *
 	 * @param versionNumber The number of the version that the proposer did not write.
 	 * @param metaPromptFilePath The file that holds the meta-prompt.
+	 * @param harnessRunCount The number of attempts that ran.
 	 * @param errorMessage Why the proposer failed.
 	 * @returns The proposal.
 	 */
-	static _buildFailure(versionNumber: number, metaPromptFilePath: string, errorMessage: string): OproProposal {
+	static _buildFailure(
+		versionNumber: number,
+		metaPromptFilePath: string,
+		harnessRunCount: number,
+		errorMessage: string,
+	): OproProposal {
 		return {
 			versionNumber: versionNumber,
 			skillsFolderPath: null,
@@ -151,6 +196,7 @@ export class OproProposer {
 			sameAsVersionNumber: null,
 			metaPromptFilePath: metaPromptFilePath,
 			errorMessage: errorMessage,
+			harnessRunCount: harnessRunCount,
 		};
 	}
 }

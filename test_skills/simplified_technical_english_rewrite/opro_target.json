@@ -269,5 +269,6 @@
 	"judge": {
 		"rubric_file_path": "judge_rubric.md",
 		"timeout_milliseconds": 300000
-	}
+	},
+	"score_noise_percent": 4.4
 }

@@ -4,6 +4,7 @@ import { Concurrency } from './concurrency.js';
 import { HARNESS_MODEL_NAMES } from './harness_types.js';
 import type { HarnessName, SplitName } from './harness_types.js';
 import { OproTargetFileReader } from './opro_target_file.js';
+import type { TestCase } from './opro_target_file.js';
 import { OproTestCaseRun } from './opro_test_case_run.js';
 import type { OproTestCaseResult } from './opro_test_case_run.js';
 
@@ -34,6 +35,10 @@ export type OproScoreRecord = {
 	started_at: string,
 	/** The number of test cases that ran. */
 	test_case_count: number,
+	/** The number of test cases that the score selected, which is higher than `test_case_count` after an early stop. */
+	planned_test_case_count: number,
+	/** `true` when the score stopped before the last test case, because the version cannot reach the threshold. */
+	stopped_early: boolean,
 	/** The number of test cases that obey every rule. */
 	perfect_test_case_count: number,
 	/** The number of rule checks: the test cases multiplied by the rules. */
@@ -48,7 +53,15 @@ export type OproScoreRecord = {
 	skill_not_loaded_count: number,
 	/** The number of harness runs that the score cost: the test cases, and the judge of each test case. */
 	harness_run_count: number,
-	/** The percentage of rule checks that pass. */
+	/**
+	 * The percentage of rule checks that pass, over the test cases that ran. After an early stop, it holds the
+	 * percentage over the test cases that ran, which no version can be compared with.
+	 */
+	partial_score_percent: number,
+	/**
+	 * The score of the version: the percentage of rule checks that pass over the test cases that the score selected.
+	 * After an early stop, it holds the highest score that the version can still reach, which is an upper bound.
+	 */
 	score_percent: number,
 	/** The failures, one on each line, for the proposer of the OPRO loop. */
 	feedback_text: string,
@@ -71,6 +84,7 @@ export class OproScoreVersion {
 	 * @param options.splitNames The groups of test cases to run.
 	 * @param options.testCaseIds The test cases to run, or `null` for every test case of the groups.
 	 * @param options.concurrency The number of test cases that run at the same time.
+	 * @param options.stopBelowPercent The score below which the run stops early, or `null` to run every test case.
 	 * @param options.keepWorkspaces `true` when the workspace folders stay on the disk after the run.
 	 * @param options.onTestCaseResult Called after each test case, to show the progress.
 	 * @returns The score record.
@@ -82,6 +96,7 @@ export class OproScoreVersion {
 		splitNames,
 		testCaseIds,
 		concurrency,
+		stopBelowPercent,
 		keepWorkspaces,
 		onTestCaseResult,
 	}: {
@@ -91,6 +106,7 @@ export class OproScoreVersion {
 		splitNames: SplitName[],
 		testCaseIds: string[] | null,
 		concurrency: number,
+		stopBelowPercent: number | null,
 		keepWorkspaces: boolean,
 		onTestCaseResult: (testCaseResult: OproTestCaseResult) => void,
 	}): Promise<OproScoreRecord> {
@@ -121,7 +137,9 @@ export class OproScoreVersion {
 			'utf8',
 		);
 
-		const testCaseResults = await Concurrency.map(testCases, concurrency, async (testCase) => {
+		const ruleNames = oproTargetFile.rules.map((ruleDefinition) => ruleDefinition.name);
+		const plannedRuleCheckCount = testCases.length * ruleNames.length;
+		const runTestCase = async (testCase: TestCase): Promise<OproTestCaseResult> => {
 			const testCaseResult = await OproTestCaseRun.run({
 				harnessName: harnessName,
 				targetFolderPath: targetFolderPath,
@@ -133,9 +151,14 @@ export class OproScoreVersion {
 			});
 			onTestCaseResult(testCaseResult);
 			return testCaseResult;
-		});
+		};
+		const testCaseResults = stopBelowPercent === null
+			? await Concurrency.map(testCases, concurrency, runTestCase)
+			: await Concurrency.mapWhile(testCases, concurrency, runTestCase, (readyResults) => {
+				return OproScoreVersion._readMaximumReachablePercent(
+					readyResults, testCases.length, ruleNames.length) >= stopBelowPercent;
+			});
 
-		const ruleNames = oproTargetFile.rules.map((ruleDefinition) => ruleDefinition.name);
 		const passedCountByRule: Record<string, number> = {};
 		for (const ruleName of ruleNames) {
 			passedCountByRule[ruleName] = testCaseResults.filter((testCaseResult) => {
@@ -157,6 +180,8 @@ export class OproScoreVersion {
 			split_names: splitNames,
 			started_at: startedAt,
 			test_case_count: testCaseResults.length,
+			planned_test_case_count: testCases.length,
+			stopped_early: testCaseResults.length < testCases.length,
 			perfect_test_case_count: testCaseResults.filter((testCaseResult) => {
 				return testCaseResult.passed_rule_count === ruleNames.length;
 			}).length,
@@ -170,7 +195,10 @@ export class OproScoreVersion {
 			harness_run_count: testCaseResults.reduce((total, testCaseResult) => {
 				return total + testCaseResult.harness_run_count;
 			}, 0),
-			score_percent: Math.round(passedRuleCheckCount / ruleCheckCount * 1000) / 10,
+			partial_score_percent: Math.round(passedRuleCheckCount / ruleCheckCount * 1000) / 10,
+			score_percent: testCaseResults.length < testCases.length
+				? OproScoreVersion._readMaximumReachablePercent(testCaseResults, testCases.length, ruleNames.length)
+				: Math.round(passedRuleCheckCount / plannedRuleCheckCount * 1000) / 10,
 			feedback_text: OproScoreVersion.buildFeedback(testCaseResults),
 			test_case_results: testCaseResults,
 		};
@@ -207,6 +235,28 @@ export class OproScoreVersion {
 	//	Helpers
 	///////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Reads the highest score that a version can still reach: every rule check that passed so far, plus every rule
+	 * check of the test cases that did not run yet, as if all of them passed.
+	 *
+	 * @param readyTestCaseResults The results of the test cases that ran.
+	 * @param plannedTestCaseCount The number of test cases that the score selected.
+	 * @param ruleCount The number of rules of the target skill.
+	 * @returns The highest score that the version can still reach, in percent.
+	 */
+	static _readMaximumReachablePercent(
+		readyTestCaseResults: OproTestCaseResult[],
+		plannedTestCaseCount: number,
+		ruleCount: number,
+	): number {
+		const passedRuleCheckCount = readyTestCaseResults.reduce((total, testCaseResult) => {
+			return total + testCaseResult.passed_rule_count;
+		}, 0);
+		const notRunTestCaseCount = plannedTestCaseCount - readyTestCaseResults.length;
+		const reachableRuleCheckCount = passedRuleCheckCount + notRunTestCaseCount * ruleCount;
+		return Math.round(reachableRuleCheckCount / (plannedTestCaseCount * ruleCount) * 1000) / 10;
+	}
 
 	/**
 	 * Checks that the target file has at most one rule of the kind `judge`, because it has one rubric file.

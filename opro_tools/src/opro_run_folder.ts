@@ -29,6 +29,8 @@ export type OproRunStart = {
 	ruleNames: string[],
 	/** `true` when a rule of the target skill needs a judge. */
 	hasJudge: boolean,
+	/** The measured noise of the score of the target skill, in percent, or `null` when nobody measured it yet. */
+	scoreNoisePercent: number | null,
 };
 
 /**
@@ -84,6 +86,7 @@ export class OproRunFolder {
 			testCaseCountBySplit: OproRunFolder._countTestCases(targetFolderPath),
 			ruleNames: oproTargetFile.rules.map((ruleDefinition) => ruleDefinition.name),
 			hasJudge: oproTargetFile.judge !== null,
+			scoreNoisePercent: oproTargetFile.score_noise_percent,
 		};
 	}
 
@@ -156,6 +159,50 @@ export class OproRunFolder {
 			),
 		);
 		return skillsFolderPath;
+	}
+
+	/**
+	 * Writes what one proposal cost, in `version_<number>/proposal.json`, so that `record-version` counts the
+	 * attempts of the proposer without the agent of the loop counting anything.
+	 *
+	 * @param runFolderPath The folder of the run.
+	 * @param versionNumber The number of the proposed version.
+	 * @param harnessRunCount The number of attempts that the proposer ran.
+	 * @returns Nothing.
+	 */
+	static writeProposal(runFolderPath: string, versionNumber: number, harnessRunCount: number): void {
+		const versionFolderPath = Path.dirname(OproRunFolder.buildVersionSkillsFolderPath(runFolderPath,
+			versionNumber));
+		Fs.mkdirSync(versionFolderPath, {
+			recursive: true,
+		});
+		Fs.writeFileSync(Path.join(versionFolderPath, 'proposal.json'), JSON.stringify({
+			version_number: versionNumber,
+			harness_run_count: harnessRunCount,
+		}, null, '\t') + '\n');
+	}
+
+	/**
+	 * Reads how many harness runs the proposer of one version cost.
+	 *
+	 * @param runFolderPath The folder of the run.
+	 * @param versionNumber The number of the version.
+	 * @returns The number of attempts of the proposer, or 0 for the first version, which no proposer wrote.
+	 */
+	static readProposalHarnessRunCount(runFolderPath: string, versionNumber: number): number {
+		if (versionNumber === 0) {
+			return 0;
+		}
+		const proposalFilePath = Path.join(
+			Path.dirname(OproRunFolder.buildVersionSkillsFolderPath(runFolderPath, versionNumber)),
+			'proposal.json',
+		);
+		if (Fs.existsSync(proposalFilePath) === false) {
+			return 1;
+		}
+		return (JSON.parse(Fs.readFileSync(proposalFilePath, 'utf8')) as {
+			harness_run_count: number,
+		}).harness_run_count;
 	}
 
 	/**
