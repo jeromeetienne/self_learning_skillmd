@@ -4,6 +4,8 @@ import * as Commander from 'commander';
 import { HARNESS_NAMES, SPLIT_NAMES } from './harness_types.js';
 import type { HarnessName, SplitName } from './harness_types.js';
 import { OproMetaPrompt } from './opro_meta_prompt.js';
+import { OproProposer } from './opro_proposer.js';
+import { OproRunFolder } from './opro_run_folder.js';
 import { OproRunRecord } from './opro_run_record.js';
 import { OproScoreVersion } from './opro_score_version.js';
 import { OproSkillFile } from './opro_skill_file.js';
@@ -34,12 +36,15 @@ export class OproToolsCli {
 			.name('skillmd_opro_tools')
 			.description('The generic tools of the OPRO optimizer skill.');
 
+		OproToolsCli._addInitRun(program);
 		OproToolsCli._addMakeWorkspace(program);
 		OproToolsCli._addRunTargetSkill(program);
 		OproToolsCli._addScoreVersion(program);
 		OproToolsCli._addSkillPartTools(program);
 		OproToolsCli._addRecordVersion(program);
 		OproToolsCli._addBuildMetaPrompt(program);
+		OproToolsCli._addProposeVersion(program);
+		OproToolsCli._addFinishRun(program);
 
 		await program.parseAsync(argv);
 	}
@@ -181,6 +186,7 @@ export class OproToolsCli {
 					passed_count_by_rule: scoreRecord.passed_count_by_rule,
 					error_count: scoreRecord.error_count,
 					skill_not_loaded_count: scoreRecord.skill_not_loaded_count,
+					harness_run_count: scoreRecord.harness_run_count,
 					feedback_text: scoreRecord.feedback_text,
 					score_file_path: outputFilePath,
 				});
@@ -257,7 +263,6 @@ export class OproToolsCli {
 			.option('--skills-folder <path>', 'the folder of the skills of the version')
 			.option('--score-file <path...>', 'the score files of the version on the optimization group')
 			.option('--final-check-score-file <path>', 'the score file of the version on the final_check group')
-			.option('--harness-run-count <count>', 'the number of harness runs that the version cost', '0')
 			.option('--error-message <text>', 'why the version was not scored')
 			.action((options: {
 				runFolder: string,
@@ -268,7 +273,6 @@ export class OproToolsCli {
 				skillsFolder?: string,
 				scoreFile?: string[],
 				finalCheckScoreFile?: string,
-				harnessRunCount: string,
 				errorMessage?: string,
 			}) => {
 				OproToolsCli._recordVersion(options);
@@ -316,6 +320,109 @@ export class OproToolsCli {
 			});
 	}
 
+	/**
+	 * Adds the tool `init-run`.
+	 *
+	 * @param program The command line.
+	 * @returns Nothing.
+	 */
+	static _addInitRun(program: Commander.Command): void {
+		program.command('init-run')
+			.description('Starts one run: writes the folder of the first version, and opro_run.json.')
+			.requiredOption('--run-folder <path>', 'the folder of the run, which must hold no run yet')
+			.requiredOption('--target-folder <path>', 'the folder of the target skill')
+			.addOption(new Commander.Option('--harness <harness name>', 'the harness that proposes and scores')
+				.choices(HARNESS_NAMES)
+				.makeOptionMandatory())
+			.action((options: {
+				runFolder: string,
+				targetFolder: string,
+				harness: HarnessName,
+			}) => {
+				const runStart = OproRunFolder.start({
+					runFolderPath: Path.resolve(options.runFolder),
+					targetFolderPath: Path.resolve(options.targetFolder),
+					harnessName: options.harness,
+				});
+				OproToolsCli._printJson({
+					run_folder_path: runStart.runFolderPath,
+					target_skill_name: runStart.targetSkillName,
+					skill_part_name: runStart.skillPartName,
+					first_version_number: 0,
+					first_version_skills_folder_path: runStart.firstVersionSkillsFolderPath,
+					test_case_count_by_split: runStart.testCaseCountBySplit,
+					rule_names: runStart.ruleNames,
+					has_judge: runStart.hasJudge,
+				});
+			});
+	}
+
+	/**
+	 * Adds the tool `propose-version`.
+	 *
+	 * @param program The command line.
+	 * @returns Nothing.
+	 */
+	static _addProposeVersion(program: Commander.Command): void {
+		program.command('propose-version')
+			.description('Asks a separate harness run for a new version, and writes the folder of that version.')
+			.requiredOption('--run-folder <path>', 'the folder of the run')
+			.addOption(new Commander.Option('--harness <harness name>', 'the harness that proposes')
+				.choices(HARNESS_NAMES)
+				.makeOptionMandatory())
+			.action(async (options: {
+				runFolder: string,
+				harness: HarnessName,
+			}) => {
+				const proposal = await OproProposer.propose({
+					runFolderPath: Path.resolve(options.runFolder),
+					harnessName: options.harness,
+				});
+				OproToolsCli._printJson({
+					version_number: proposal.versionNumber,
+					skills_folder_path: proposal.skillsFolderPath,
+					same_as_version_number: proposal.sameAsVersionNumber,
+					character_count: proposal.skillPartText === null ? 0 : proposal.skillPartText.length,
+					meta_prompt_file_path: proposal.metaPromptFilePath,
+					error_message: proposal.errorMessage,
+				});
+			});
+	}
+
+	/**
+	 * Adds the tool `finish-run`.
+	 *
+	 * @param program The command line.
+	 * @returns Nothing.
+	 */
+	static _addFinishRun(program: Commander.Command): void {
+		program.command('finish-run')
+			.description('Copies the SKILL.md file of the best version to best_SKILL.md, and writes the summary.')
+			.requiredOption('--run-folder <path>', 'the folder of the run')
+			.action((options: {
+				runFolder: string,
+			}) => {
+				const { runRecord, bestSkillFilePath } = OproRunFolder.finish(Path.resolve(options.runFolder));
+				OproToolsCli._printJson({
+					best_version_number: runRecord.best_version_number,
+					best_skill_file_path: bestSkillFilePath,
+					harness_run_count: runRecord.versions.reduce((total, versionRecord) => {
+						return total + versionRecord.harness_run_count;
+					}, 0),
+					versions: runRecord.versions.map((versionRecord) => {
+						return {
+							version_number: versionRecord.version_number,
+							round_number: versionRecord.round_number,
+							average_score_percent: versionRecord.average_score_percent,
+							score_percents: versionRecord.score_percents,
+							final_check_percent: versionRecord.final_check_percent,
+							error_message: versionRecord.error_message,
+						};
+					}),
+				});
+			});
+	}
+
 	///////////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////
 	//	Helpers
@@ -337,7 +444,6 @@ export class OproToolsCli {
 		skillsFolder?: string,
 		scoreFile?: string[],
 		finalCheckScoreFile?: string,
-		harnessRunCount: string,
 		errorMessage?: string,
 	}): void {
 		const runFolderPath = Path.resolve(options.runFolder);
@@ -374,6 +480,19 @@ export class OproToolsCli {
 		const finalCheckPercent = options.finalCheckScoreFile === undefined
 			? (earlierVersion?.final_check_percent ?? null)
 			: OproToolsCli._readScoreFile(options.finalCheckScoreFile).score_percent;
+		const countedScoreFilePaths = [...(earlierVersion?.counted_score_file_paths ?? [])];
+		let harnessRunCount = earlierVersion?.harness_run_count ?? (versionNumber === 0 ? 0 : 1);
+		const newScoreFilePaths = options.finalCheckScoreFile === undefined
+			? scoreFilePaths
+			: [...scoreFilePaths, options.finalCheckScoreFile];
+		for (const newScoreFilePath of newScoreFilePaths) {
+			const countedScoreFilePath = Path.resolve(newScoreFilePath);
+			if (countedScoreFilePaths.includes(countedScoreFilePath) === true) {
+				continue;
+			}
+			countedScoreFilePaths.push(countedScoreFilePath);
+			harnessRunCount = harnessRunCount + OproToolsCli._readScoreFile(countedScoreFilePath).harness_run_count;
+		}
 		const allScorePercents = scorePercents.length === 0
 			? (earlierVersion?.score_percents ?? [])
 			: scorePercents;
@@ -391,8 +510,8 @@ export class OproToolsCli {
 				}, 0) / allScorePercents.length * 10) / 10,
 			feedback_text: feedbackText,
 			final_check_percent: finalCheckPercent,
-			harness_run_count: OproToolsCli._parseNumber('--harness-run-count', options.harnessRunCount)
-				+ (earlierVersion?.harness_run_count ?? 0),
+			harness_run_count: harnessRunCount,
+			counted_score_file_paths: countedScoreFilePaths,
 			error_message: options.errorMessage ?? null,
 		});
 
@@ -406,6 +525,7 @@ export class OproToolsCli {
 					average_score_percent: versionRecord.average_score_percent,
 					score_percents: versionRecord.score_percents,
 					final_check_percent: versionRecord.final_check_percent,
+					harness_run_count: versionRecord.harness_run_count,
 					error_message: versionRecord.error_message,
 				};
 			}),
@@ -421,10 +541,12 @@ export class OproToolsCli {
 	static _readScoreFile(scoreFilePath: string): {
 		score_percent: number,
 		feedback_text: string,
+		harness_run_count: number,
 	} {
 		return JSON.parse(Fs.readFileSync(Path.resolve(scoreFilePath), 'utf8')) as {
 			score_percent: number,
 			feedback_text: string,
+			harness_run_count: number,
 		};
 	}
 

@@ -1,0 +1,161 @@
+{
+	"harness_name": "claude",
+	"model_name": "claude-sonnet-5",
+	"target_folder_path": "/Users/jetienne/webwork/skillmd_opro/test_skills/commit_message",
+	"skills_folder_path": "/Users/jetienne/webwork/skillmd_opro/opro_skill/playground/outputs/milestone_3_claude_trial/version_000/skills",
+	"target_skill_text": "---\nname: commit-message\ndescription: Writes the git commit message for the staged changes. Use when the user asks for a commit message.\n---\n\n# Commit message\n\nRead the staged changes with `git diff --staged`, and write a commit message that describes them.\n",
+	"split_names": [
+		"optimization"
+	],
+	"started_at": "2026-09-20T00:41:39.470Z",
+	"test_case_count": 3,
+	"perfect_test_case_count": 0,
+	"rule_check_count": 18,
+	"passed_rule_check_count": 2,
+	"passed_count_by_rule": {
+		"conventional_type": 0,
+		"first_line_length": 0,
+		"issue_suffix": 1,
+		"why_line": 0,
+		"fixes_last_line": 1,
+		"no_attribution": 0
+	},
+	"error_count": 0,
+	"skill_not_loaded_count": 0,
+	"score_percent": 11.1,
+	"feedback_text": "- fix_issue_01: conventional_type: the first line does not start with a type such as \"feat: \" or \"fix: \"\n- fix_issue_01: first_line_length: 1 lines have more than 50 characters, such as: Fix crash in `completeTask` when index does not exist\n- fix_issue_01: issue_suffix: the first line does not end with \", #12\"\n- fix_issue_01: why_line: the second line is not blank, or the third line does not start with \"Why: \"\n- fix_issue_01: fixes_last_line: the change fixes the issue #12, but the last line is not \"fixes #12\"\n- fix_issue_01: no_attribution: the answer holds Co-Authored-By, which the rule refuses\n- fix_issue_02: conventional_type: the first line does not start with a type such as \"feat: \" or \"fix: \"\n- fix_issue_02: first_line_length: 1 lines have more than 50 characters, such as: Fix delete command silently failing on invalid index\n- fix_issue_02: issue_suffix: the first line does not end with \", #15\"\n- fix_issue_02: why_line: the second line is not blank, or the third line does not start with \"Why: \"\n- fix_issue_02: fixes_last_line: the change fixes the issue #15, but the last line is not \"fixes #15\"\n- fix_issue_02: no_attribution: the answer holds Co-Authored-By, which the rule refuses\n- no_issue_01: conventional_type: the first line does not start with a type such as \"feat: \" or \"fix: \"\n- no_issue_01: first_line_length: 1 lines have more than 50 characters, such as: Add task count summary to the `list` command output\n- no_issue_01: why_line: the second line is not blank, or the third line does not start with \"Why: \"\n- no_issue_01: no_attribution: the answer holds Co-Authored-By, which the rule refuses",
+	"test_case_results": [
+		{
+			"test_case_id": "fix_issue_01",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nThis change fixes issue #12: the done command crashed with a TypeError when the index did not exist.",
+			"final_text": "Fix crash in `completeTask` when index does not exist\n\nGuard against an out-of-range index by throwing a clear error instead of\nletting `task.isDone = true` throw a TypeError on `undefined`.\n\nFixes #12\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+			"answer_text": "Fix crash in `completeTask` when index does not exist\n\nGuard against an out-of-range index by throwing a clear error instead of\nletting `task.isDone = true` throw a TypeError on `undefined`.\n\nFixes #12\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": false,
+					"failure_reason": "the first line does not start with a type such as \"feat: \" or \"fix: \""
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": false,
+					"failure_reason": "1 lines have more than 50 characters, such as: Fix crash in `completeTask` when index does not exist"
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": false,
+					"failure_reason": "the first line does not end with \", #12\""
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": false,
+					"failure_reason": "the second line is not blank, or the third line does not start with \"Why: \""
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": false,
+					"failure_reason": "the change fixes the issue #12, but the last line is not \"fixes #12\""
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": false,
+					"failure_reason": "the answer holds Co-Authored-By, which the rule refuses"
+				}
+			],
+			"passed_rule_count": 0,
+			"evidence": "tool Skill: {\"skill\":\"commit-message\"}\ntool Bash: {\"command\":\"git diff --staged\",\"description\":\"Show staged changes\"}",
+			"error_message": null,
+			"duration_milliseconds": 8289
+		},
+		{
+			"test_case_id": "fix_issue_02",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\n`todo delete abc` did nothing and printed nothing. After this change the bug is gone.",
+			"final_text": "Fix delete command silently failing on invalid index\n\nValidate that the delete command's index argument is a number before calling deleteTask, printing an error and exiting non-zero instead of silently doing nothing.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+			"answer_text": "Fix delete command silently failing on invalid index\n\nValidate that the delete command's index argument is a number before calling deleteTask, printing an error and exiting non-zero instead of silently doing nothing.\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": false,
+					"failure_reason": "the first line does not start with a type such as \"feat: \" or \"fix: \""
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": false,
+					"failure_reason": "1 lines have more than 50 characters, such as: Fix delete command silently failing on invalid index"
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": false,
+					"failure_reason": "the first line does not end with \", #15\""
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": false,
+					"failure_reason": "the second line is not blank, or the third line does not start with \"Why: \""
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": false,
+					"failure_reason": "the change fixes the issue #15, but the last line is not \"fixes #15\""
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": false,
+					"failure_reason": "the answer holds Co-Authored-By, which the rule refuses"
+				}
+			],
+			"passed_rule_count": 0,
+			"evidence": "tool Skill: {\"skill\":\"commit-message\"}\ntool Bash: {\"command\":\"git diff --staged\",\"description\":\"Show staged diff\"}",
+			"error_message": null,
+			"duration_milliseconds": 10788
+		},
+		{
+			"test_case_id": "no_issue_01",
+			"split": "optimization",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nWrite the commit message, please.",
+			"final_text": "Add task count summary to the `list` command output\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+			"answer_text": "Add task count summary to the `list` command output\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": false,
+					"failure_reason": "the first line does not start with a type such as \"feat: \" or \"fix: \""
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": false,
+					"failure_reason": "1 lines have more than 50 characters, such as: Add task count summary to the `list` command output"
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": false,
+					"failure_reason": "the second line is not blank, or the third line does not start with \"Why: \""
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": false,
+					"failure_reason": "the answer holds Co-Authored-By, which the rule refuses"
+				}
+			],
+			"passed_rule_count": 2,
+			"evidence": "tool Skill: {\"skill\":\"commit-message\"}\ntool Bash: {\"command\":\"git diff --staged\",\"description\":\"Show staged changes\"}",
+			"error_message": null,
+			"duration_milliseconds": 7168
+		}
+	]
+}

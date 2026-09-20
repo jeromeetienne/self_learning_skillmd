@@ -1,0 +1,117 @@
+{
+	"harness_name": "claude",
+	"model_name": "claude-sonnet-5",
+	"target_folder_path": "/Users/jetienne/webwork/skillmd_opro/test_skills/commit_message",
+	"skills_folder_path": "/Users/jetienne/webwork/skillmd_opro/opro_skill/playground/outputs/milestone_3_claude_trial/version_000/skills",
+	"target_skill_text": "---\nname: commit-message\ndescription: Writes the git commit message for the staged changes. Use when the user asks for a commit message.\n---\n\n# Commit message\n\nRead the staged changes with `git diff --staged`, and write a commit message that describes them.\n",
+	"split_names": [
+		"final_check"
+	],
+	"started_at": "2026-09-20T00:42:45.259Z",
+	"test_case_count": 2,
+	"perfect_test_case_count": 0,
+	"rule_check_count": 12,
+	"passed_rule_check_count": 2,
+	"passed_count_by_rule": {
+		"conventional_type": 0,
+		"first_line_length": 0,
+		"issue_suffix": 1,
+		"why_line": 0,
+		"fixes_last_line": 1,
+		"no_attribution": 0
+	},
+	"error_count": 0,
+	"skill_not_loaded_count": 0,
+	"score_percent": 16.7,
+	"feedback_text": "- fix_issue_05: conventional_type: the first line does not start with a type such as \"feat: \" or \"fix: \"\n- fix_issue_05: first_line_length: 1 lines have more than 50 characters, such as: Fix due date validation to reject non-YYYY-MM-DD input in `add` command\n- fix_issue_05: issue_suffix: the first line does not end with \", #27\"\n- fix_issue_05: why_line: the second line is not blank, or the third line does not start with \"Why: \"\n- fix_issue_05: fixes_last_line: the change fixes the issue #27, but the last line is not \"fixes #27\"\n- fix_issue_05: no_attribution: the answer holds Co-Authored-By, which the rule refuses\n- no_issue_07: conventional_type: the first line does not start with a type such as \"feat: \" or \"fix: \"\n- no_issue_07: first_line_length: 1 lines have more than 50 characters, such as: Add `--version` flag to print the CLI version and exit\n- no_issue_07: why_line: the second line is not blank, or the third line does not start with \"Why: \"\n- no_issue_07: no_attribution: the answer holds Co-Authored-By, which the rule refuses",
+	"test_case_results": [
+		{
+			"test_case_id": "fix_issue_05",
+			"split": "final_check",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nA due date like 'tomorrow' was saved as it is. Now it is refused, so the bug is fixed.",
+			"final_text": "Fix due date validation to reject non-YYYY-MM-DD input in `add` command\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+			"answer_text": "Fix due date validation to reject non-YYYY-MM-DD input in `add` command\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": false,
+					"failure_reason": "the first line does not start with a type such as \"feat: \" or \"fix: \""
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": false,
+					"failure_reason": "1 lines have more than 50 characters, such as: Fix due date validation to reject non-YYYY-MM-DD input in `add` command"
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": false,
+					"failure_reason": "the first line does not end with \", #27\""
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": false,
+					"failure_reason": "the second line is not blank, or the third line does not start with \"Why: \""
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": false,
+					"failure_reason": "the change fixes the issue #27, but the last line is not \"fixes #27\""
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": false,
+					"failure_reason": "the answer holds Co-Authored-By, which the rule refuses"
+				}
+			],
+			"passed_rule_count": 0,
+			"evidence": "tool Skill: {\"skill\":\"commit-message\"}\ntool Bash: {\"command\":\"git diff --staged\",\"description\":\"Show staged diff\"}",
+			"error_message": null,
+			"duration_milliseconds": 6891
+		},
+		{
+			"test_case_id": "no_issue_07",
+			"split": "final_check",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nPlease write the message for what I staged.",
+			"final_text": "Add `--version` flag to print the CLI version and exit\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+			"answer_text": "Add `--version` flag to print the CLI version and exit\n\nCo-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": false,
+					"failure_reason": "the first line does not start with a type such as \"feat: \" or \"fix: \""
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": false,
+					"failure_reason": "1 lines have more than 50 characters, such as: Add `--version` flag to print the CLI version and exit"
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": false,
+					"failure_reason": "the second line is not blank, or the third line does not start with \"Why: \""
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": false,
+					"failure_reason": "the answer holds Co-Authored-By, which the rule refuses"
+				}
+			],
+			"passed_rule_count": 2,
+			"evidence": "tool Skill: {\"skill\":\"commit-message\"}\ntool Bash: {\"command\":\"git diff --staged\",\"description\":\"Show staged changes\"}",
+			"error_message": null,
+			"duration_milliseconds": 6902
+		}
+	]
+}

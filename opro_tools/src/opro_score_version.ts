@@ -46,6 +46,8 @@ export type OproScoreRecord = {
 	error_count: number,
 	/** The number of test cases whose harness never named the target skill. */
 	skill_not_loaded_count: number,
+	/** The number of harness runs that the score cost: the test cases, and the judge of each test case. */
+	harness_run_count: number,
 	/** The percentage of rule checks that pass. */
 	score_percent: number,
 	/** The failures, one on each line, for the proposer of the OPRO loop. */
@@ -165,6 +167,9 @@ export class OproScoreVersion {
 			skill_not_loaded_count: testCaseResults.filter((testCaseResult) => {
 				return testCaseResult.is_skill_loaded === false;
 			}).length,
+			harness_run_count: testCaseResults.reduce((total, testCaseResult) => {
+				return total + testCaseResult.harness_run_count;
+			}, 0),
 			score_percent: Math.round(passedRuleCheckCount / ruleCheckCount * 1000) / 10,
 			feedback_text: OproScoreVersion.buildFeedback(testCaseResults),
 			test_case_results: testCaseResults,

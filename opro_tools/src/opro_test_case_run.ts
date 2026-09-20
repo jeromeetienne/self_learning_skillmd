@@ -43,6 +43,8 @@ export type OproTestCaseResult = {
 	evidence: string,
 	/** The reason why the harness or the judge failed, or `null` when they did not. */
 	error_message: string | null,
+	/** The number of harness runs that the test case cost: the run of the target skill, and the run of the judge. */
+	harness_run_count: number,
 	/** How long the test case took, in milliseconds. */
 	duration_milliseconds: number,
 };
@@ -134,6 +136,7 @@ export class OproTestCaseRun {
 
 		const judgeRuleName = OproTestCaseRun.findJudgeRuleName(oproTargetFile, testCase);
 		const judgmentByRuleName: Record<string, RuleJudgment | null> = {};
+		let harnessRunCount = 1;
 		if (judgeRuleName !== null && rubricText !== null && answerText !== null && answerText !== '') {
 			const judgeResult = await OproJudge.judge({
 				harnessName: harnessName,
@@ -142,6 +145,7 @@ export class OproTestCaseRun {
 				answerText: answerText,
 				timeoutMilliseconds: oproTargetFile.judge?.timeout_milliseconds ?? 300000,
 			});
+			harnessRunCount = harnessRunCount + 1;
 			judgmentByRuleName[judgeRuleName] = judgeResult.judgment;
 			if (judgeResult.errorMessage !== null) {
 				errorMessage = errorMessage === null
@@ -170,6 +174,7 @@ export class OproTestCaseRun {
 			passed_rule_count: ruleChecks.filter((ruleCheck) => ruleCheck.is_passed === true).length,
 			evidence: evidence,
 			error_message: errorMessage,
+			harness_run_count: harnessRunCount,
 			duration_milliseconds: Date.now() - startTime,
 		};
 	}

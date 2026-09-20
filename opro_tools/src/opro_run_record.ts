@@ -33,6 +33,8 @@ export type OproVersionRecord = {
 	final_check_percent: number | null,
 	/** The number of harness runs that the version cost, so that the cost of a run can be read after it. */
 	harness_run_count: number,
+	/** The score files already counted in `harness_run_count`, so that a second record counts no run twice. */
+	counted_score_file_paths: string[],
 	/** The reason why the version was not scored, or `null` when it was. */
 	error_message: string | null,
 };
