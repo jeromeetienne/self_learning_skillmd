@@ -29,5 +29,6 @@
 			]
 		}
 	],
-	"judge": null
+	"judge": null,
+	"score_noise_percent": 5.5
 }
