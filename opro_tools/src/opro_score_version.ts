@@ -132,10 +132,12 @@ export class OproScoreVersion {
 		const rubricText = oproTargetFile.judge === null
 			? null
 			: Fs.readFileSync(Path.resolve(targetFolderPath, oproTargetFile.judge.rubric_file_path), 'utf8');
-		const targetSkillText = Fs.readFileSync(
-			Path.join(skillsFolderPath, oproTargetFile.target_skill_name, 'SKILL.md'),
-			'utf8',
-		);
+		const targetSkillFilePath = Path.join(skillsFolderPath, oproTargetFile.target_skill_name, 'SKILL.md');
+		if (Fs.existsSync(targetSkillFilePath) === false) {
+			throw new Error(`${skillsFolderPath} holds no ${oproTargetFile.target_skill_name}/SKILL.md. `
+				+ 'Give the skills folder of one version of the run folder, such as <run folder>/version_000/skills.');
+		}
+		const targetSkillText = Fs.readFileSync(targetSkillFilePath, 'utf8');
 
 		const ruleNames = oproTargetFile.rules.map((ruleDefinition) => ruleDefinition.name);
 		const plannedRuleCheckCount = testCases.length * ruleNames.length;

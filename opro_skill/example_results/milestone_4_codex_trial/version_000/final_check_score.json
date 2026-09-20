@@ -1,0 +1,123 @@
+{
+	"harness_name": "codex",
+	"model_name": "gpt-5.6-luna",
+	"target_folder_path": "/Users/jetienne/webwork/skillmd_opro/test_skills/commit_message",
+	"skills_folder_path": "/Users/jetienne/webwork/skillmd_opro/opro_skill/playground/outputs/milestone_4_codex_trial_2/version_000/skills",
+	"target_skill_text": "---\nname: commit-message\ndescription: Writes the git commit message for the staged changes. Use when the user asks for a commit message.\n---\n\n# Commit message\n\nRead the staged changes with `git diff --staged`, and write a commit message that describes them.\n",
+	"split_names": [
+		"final_check"
+	],
+	"started_at": "2026-09-20T01:12:13.726Z",
+	"test_case_count": 2,
+	"planned_test_case_count": 2,
+	"stopped_early": false,
+	"perfect_test_case_count": 0,
+	"rule_check_count": 12,
+	"passed_rule_check_count": 7,
+	"passed_count_by_rule": {
+		"conventional_type": 1,
+		"first_line_length": 2,
+		"issue_suffix": 1,
+		"why_line": 0,
+		"fixes_last_line": 1,
+		"no_attribution": 2
+	},
+	"error_count": 0,
+	"skill_not_loaded_count": 0,
+	"harness_run_count": 2,
+	"partial_score_percent": 58.3,
+	"score_percent": 58.3,
+	"feedback_text": "- fix_issue_05: issue_suffix: the first line does not end with \", #27\"\n- fix_issue_05: why_line: the second line is not blank, or the third line does not start with \"Why: \"\n- fix_issue_05: fixes_last_line: the change fixes the issue #27, but the last line is not \"fixes #27\"\n- no_issue_07: conventional_type: the first line does not start with a type such as \"feat: \" or \"fix: \"\n- no_issue_07: why_line: the second line is not blank, or the third line does not start with \"Why: \"",
+	"test_case_results": [
+		{
+			"test_case_id": "fix_issue_05",
+			"split": "final_check",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nA due date like 'tomorrow' was saved as it is. Now it is refused, so the bug is fixed.",
+			"final_text": "fix: reject invalid due date formats",
+			"answer_text": "fix: reject invalid due date formats",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": false,
+					"failure_reason": "the first line does not end with \", #27\""
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": false,
+					"failure_reason": "the second line is not blank, or the third line does not start with \"Why: \""
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": false,
+					"failure_reason": "the change fixes the issue #27, but the last line is not \"fixes #27\""
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 3,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/opro_workspace_dOGvYt/project/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"harness_run_count": 1,
+			"duration_milliseconds": 10204
+		},
+		{
+			"test_case_id": "no_issue_07",
+			"split": "final_check",
+			"user_message": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\nPlease write the message for what I staged.",
+			"final_text": "Add `--version` CLI flag for version 1.1.0",
+			"answer_text": "Add `--version` CLI flag for version 1.1.0",
+			"is_skill_loaded": true,
+			"rule_checks": [
+				{
+					"rule_name": "conventional_type",
+					"is_passed": false,
+					"failure_reason": "the first line does not start with a type such as \"feat: \" or \"fix: \""
+				},
+				{
+					"rule_name": "first_line_length",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "issue_suffix",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "why_line",
+					"is_passed": false,
+					"failure_reason": "the second line is not blank, or the third line does not start with \"Why: \""
+				},
+				{
+					"rule_name": "fixes_last_line",
+					"is_passed": true,
+					"failure_reason": null
+				},
+				{
+					"rule_name": "no_attribution",
+					"is_passed": true,
+					"failure_reason": null
+				}
+			],
+			"passed_rule_count": 4,
+			"evidence": "command: /bin/zsh -lc \"sed -n '1,240p' /private/var/folders/0x/q81p1bjs0mj_4tm3whz_bx4m0000gn/T/opro_workspace_4pABcV/project/.agents/skills/commit-message/SKILL.md && git diff --cached --stat && git diff --cached\"",
+			"error_message": null,
+			"harness_run_count": 1,
+			"duration_milliseconds": 12352
+		}
+	]
+}

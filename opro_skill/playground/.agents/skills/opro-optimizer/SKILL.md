@@ -40,15 +40,17 @@ The tool `build-meta-prompt --run-folder <path>` writes the meta-prompt without 
 
 ## The loop
 
-1. Run `init-run`. Read the number of test cases of each group, and tell the user how many harness runs the whole loop will cost: for each version, the number of test cases of the `optimization` group multiplied by the number of score runs, plus one run for each test case when the target skill has a judge, plus one run for the proposer.
-2. Score version 0, as many times as the number of score runs, each time into its own file:
+1. Run `init-run`. Read `score_noise_percent`, which every step below calls **the noise**, and read the number of test cases of each group. Tell the user how many harness runs the loop will cost at least: for each version, the number of test cases of the `optimization` group, plus one run for each test case when the target skill has a judge, plus one run for the proposer. A second score run of a version, which only a close version gets, costs the test cases of the group again.
+2. Score version 0 **one time**, into its own file:
    `score-version ... --split optimization --skills-folder <run folder>/version_000/skills --output-file <run folder>/version_000/optimization_score_1.json`
 3. Record version 0: `record-version ... --version-number 0 --round-number 0 --skills-folder <run folder>/version_000/skills --score-file <every score file of version 0>`.
 4. For each round, and for each version of that round:
    - Run `propose-version`. When it prints an `error_message`, run `record-version` with the version number that it printed and `--error-message <that message>`, and go on with the next version.
    - When it prints `same_as_version_number`, the proposer wrote a version that the history already holds. Do not score it. Run `record-version` with `--error-message "the proposer wrote the same version as version <number>"`, and go on.
    - Score the new version on the `optimization` group one time, into `<run folder>/version_<n>/optimization_score_1.json`, with `--stop-below-percent <the average score of the best version minus the noise>`. When the score prints `stopped_early: true`, its `score_percent` is the highest score that the version can still reach, which is already below the best version: record the version with that score file and go on with the next version.
-   - Score the new version again, into `optimization_score_2.json` and then `optimization_score_3.json`, only while its scores stay within the noise of the average score of the best version, and only up to the largest number of score runs. A version that scores far below the best version needs no second run.
+   - Score the new version a second time, into `optimization_score_2.json`, and then a third time, into `optimization_score_3.json`, **only while the two conditions below both hold**. A second run of a version that the first run already separated from the best version buys nothing, so this is the step that keeps the cost down.
+     - The difference between the score of the version and the average score of the best version is **smaller than the noise**. A version above that band already wins, and a version below it already loses; both keep one score run.
+     - The version has fewer score runs than the largest number of score runs of the user message.
    - Record the new version with every score file that it has, its skills folder, and the round number.
 5. When every round is done, score the `final_check` group one time for version 0, and one time for the best version, with no `--stop-below-percent`, into `<run folder>/version_<n>/final_check_score.json`. Record each one with `--final-check-score-file`. When the best version is version 0, score it one time only.
 6. Run `finish-run`.

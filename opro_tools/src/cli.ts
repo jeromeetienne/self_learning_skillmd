@@ -680,4 +680,9 @@ export class OproToolsCli {
 	}
 }
 
-await OproToolsCli.main(process.argv);
+try {
+	await OproToolsCli.main(process.argv);
+} catch (error) {
+	process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
+	process.exit(1);
+}
