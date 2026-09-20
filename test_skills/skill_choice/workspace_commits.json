@@ -1,0 +1,64 @@
+{
+	"commits": [
+		{
+			"branch_name": "main",
+			"message": "chore: create todo-cli with the add, list, and delete commands",
+			"files": {
+				"README.md": "# todo-cli\n\nA command line tool that keeps a list of tasks.\n",
+				"package.json": "{\n\t\"name\": \"todo-cli\",\n\t\"version\": \"1.0.0\",\n\t\"type\": \"module\"\n}\n",
+				"CHANGELOG.md": "# Changelog\n\nAll notable changes to this project are documented in this file.\n\n## [Unreleased]\n\n## [1.0.0] - 2026-06-01\n\n### Added\n\n- Add, list, and delete tasks.\n",
+				"src/index.ts": "export type Task = { title: string };\nconst tasks: Task[] = [];\nexport function addTask(title: string): void { tasks.push({ title }); }\nexport function listTasks(): Task[] { return tasks; }\nexport function deleteTask(index: number): void { tasks.splice(index, 1); }\n"
+			},
+			"tag_name": "v1.0.0"
+		},
+		{
+			"branch_name": "main",
+			"message": "feat: add a due date to each task",
+			"files": {
+				"src/index.ts": "export type Task = { title: string, dueDate: string | null };\nconst tasks: Task[] = [];\nexport function addTask(title: string, dueDate: string | null): void { tasks.push({ title, dueDate }); }\nexport function listTasks(): Task[] { return tasks; }\nexport function deleteTask(index: number): void { tasks.splice(index, 1); }\n"
+			},
+			"tag_name": null
+		},
+		{
+			"branch_name": "main",
+			"message": "fix: keep the order of the tasks after a delete",
+			"files": {
+				"src/index.ts": "export type Task = { title: string, dueDate: string | null };\nlet tasks: Task[] = [];\nexport function addTask(title: string, dueDate: string | null): void { tasks.push({ title, dueDate }); }\nexport function listTasks(): Task[] { return [...tasks]; }\nexport function deleteTask(index: number): void { tasks = tasks.filter((_, i) => i !== index); }\n"
+			},
+			"tag_name": null
+		},
+		{
+			"branch_name": "main",
+			"message": "chore: release 1.1.0",
+			"files": {
+				"package.json": "{\n\t\"name\": \"todo-cli\",\n\t\"version\": \"1.1.0\",\n\t\"type\": \"module\"\n}\n",
+				"CHANGELOG.md": "# Changelog\n\nAll notable changes to this project are documented in this file.\n\n## [Unreleased]\n\n## [1.1.0] - 2026-06-10\n\n### Added\n\n- A due date for each task.\n\n### Fixed\n\n- The order of the tasks stays the same after a delete.\n\n## [1.0.0] - 2026-06-01\n\n### Added\n\n- Add, list, and delete tasks.\n"
+			},
+			"tag_name": "v1.1.0"
+		},
+		{
+			"branch_name": "main",
+			"message": "feat: add the --json option to the list command",
+			"files": {
+				"src/cli.ts": "import { listTasks } from './index.js';\nconst isJson = process.argv.includes('--json');\nconst tasks = listTasks();\nconsole.log(isJson ? JSON.stringify(tasks) : tasks.map((task) => task.title).join('\\n'));\n"
+			},
+			"tag_name": null
+		},
+		{
+			"branch_name": "add-task-priority",
+			"message": "feat: add a priority to each task, and sort the list by priority",
+			"files": {
+				"src/index.ts": "export type Task = { title: string, dueDate: string | null, priority: number };\nlet tasks: Task[] = [];\nexport function addTask(title: string, dueDate: string | null, priority = 0): void {\n\ttasks.push({ title, dueDate, priority });\n}\nexport function listTasks(): Task[] { return [...tasks].sort((a, b) => b.priority - a.priority); }\nexport function deleteTask(index: number): void { tasks = tasks.filter((_, i) => i !== index); }\n"
+			},
+			"tag_name": null
+		},
+		{
+			"branch_name": "add-task-priority",
+			"message": "test: check the sort by priority",
+			"files": {
+				"src/index.test.ts": "import assert from 'node:assert';\nimport { addTask, listTasks } from './index.js';\naddTask('low', null, 1);\naddTask('high', null, 5);\nassert.deepStrictEqual(listTasks().map((task) => task.title), ['high', 'low']);\n"
+			},
+			"tag_name": null
+		}
+	]
+}

@@ -2,8 +2,9 @@ import Fs from 'node:fs';
 import Os from 'node:os';
 import Path from 'node:path';
 import { GitCommand } from './git_command.js';
+import { OproRules } from './opro_rules.js';
 import { OproTargetFileReader } from './opro_target_file.js';
-import type { FileChange, OproTargetFile, TestCase } from './opro_target_file.js';
+import type { FileChange, OproTargetFile, TestCase, WorkspaceCommit } from './opro_target_file.js';
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -13,6 +14,9 @@ import type { FileChange, OproTargetFile, TestCase } from './opro_target_file.js
 
 /** The folder names where each harness reads the installed skills of a project. */
 const HARNESS_SKILLS_PARENT_FOLDER_NAMES = ['.claude', '.agents'];
+
+/** The number of milliseconds of one day, which sets the date of each commit of the workspace recipe. */
+const DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 
 /** The record that `make-workspace` writes, and that `run-target-skill` reads. */
 export type OproWorkspaceRecord = {
@@ -28,13 +32,15 @@ export type OproWorkspaceRecord = {
 	claude_allowed_tool_names: string[],
 	/** The time after which the harness is stopped. */
 	timeout_milliseconds: number,
+	/** The names of the skills of the skills folder, which the run mode `skill_choice` reads. */
+	skill_names: string[],
 };
 
 /**
  * Builds the workspace of one test case from the recipe of `opro_target.json`: a temporary folder that holds the
  * record of the workspace and a `project/` folder, where the harness runs. The project holds the copied folder of the
- * recipe, a git repository when the recipe asks for one, the file changes of the test case, and the skills of the
- * version under test. The skills are excluded from git, so that they never appear in the staged changes.
+ * recipe, the commits of the recipe, the file changes of the test case, and the skills of the version under test. The
+ * skills are excluded from git, so that they never appear in the staged changes.
  */
 export class OproWorkspaceFolder {
 	/**
@@ -43,22 +49,24 @@ export class OproWorkspaceFolder {
 	 * @param options The options of the workspace.
 	 * @param options.targetFolderPath The folder of the target skill, which holds `opro_target.json`.
 	 * @param options.skillsFolderPath The folder that holds one folder for each skill, with the version under test.
-	 * @param options.testCaseId The name of the test case.
+	 * @param options.testCase The test case, or its name.
 	 * @param options.workspaceParentFolderPath The folder that holds the workspace, or `null` for the temporary
 	 * folder of the operating system.
 	 * @returns The record of the workspace, and the folder that holds it.
 	 */
-	static make({ targetFolderPath, skillsFolderPath, testCaseId, workspaceParentFolderPath }: {
+	static make({ targetFolderPath, skillsFolderPath, testCase, workspaceParentFolderPath }: {
 		targetFolderPath: string,
 		skillsFolderPath: string,
-		testCaseId: string,
+		testCase: TestCase | string,
 		workspaceParentFolderPath: string | null,
 	}): {
 		workspaceFolderPath: string,
 		workspaceRecord: OproWorkspaceRecord,
 	} {
 		const oproTargetFile = OproTargetFileReader.readTargetFile(targetFolderPath);
-		const testCase = OproTargetFileReader.readTestCase(targetFolderPath, testCaseId);
+		const readTestCase = typeof testCase === 'string'
+			? OproTargetFileReader.readTestCase(targetFolderPath, testCase)
+			: testCase;
 
 		const parentFolderPath = workspaceParentFolderPath ?? Os.tmpdir();
 		Fs.mkdirSync(parentFolderPath, {
@@ -69,20 +77,19 @@ export class OproWorkspaceFolder {
 		Fs.mkdirSync(projectFolderPath);
 
 		OproWorkspaceFolder._copyFolder(targetFolderPath, oproTargetFile, projectFolderPath);
-		OproWorkspaceFolder._startGitRepository(oproTargetFile, projectFolderPath, testCase);
+		OproWorkspaceFolder._writeCommits(targetFolderPath, oproTargetFile, projectFolderPath, readTestCase);
 		OproWorkspaceFolder._installSkills(skillsFolderPath, projectFolderPath);
-		OproWorkspaceFolder._applyFileChanges(projectFolderPath, testCase.file_changes);
+		OproWorkspaceFolder._applyFileChanges(projectFolderPath, readTestCase.file_changes);
 		OproWorkspaceFolder._stageFileChanges(oproTargetFile, projectFolderPath);
 
 		const workspaceRecord: OproWorkspaceRecord = {
-			test_case_id: testCase.id,
+			test_case_id: readTestCase.id,
 			target_skill_name: oproTargetFile.target_skill_name,
 			project_folder_path: projectFolderPath,
-			user_message: testCase.user_message === ''
-				? oproTargetFile.user_message_prefix
-				: `${oproTargetFile.user_message_prefix}\n\n${testCase.user_message}`,
+			user_message: OproRules.fillTemplate(oproTargetFile.user_message_template, readTestCase, false),
 			claude_allowed_tool_names: oproTargetFile.claude_allowed_tool_names,
 			timeout_milliseconds: oproTargetFile.timeout_milliseconds,
+			skill_names: OproWorkspaceFolder.readSkillNames(skillsFolderPath),
 		};
 		Fs.writeFileSync(
 			Path.join(workspaceFolderPath, 'opro_workspace.json'),
@@ -103,6 +110,21 @@ export class OproWorkspaceFolder {
 	static readRecord(workspaceFolderPath: string): OproWorkspaceRecord {
 		const filePath = Path.join(workspaceFolderPath, 'opro_workspace.json');
 		return JSON.parse(Fs.readFileSync(filePath, 'utf8')) as OproWorkspaceRecord;
+	}
+
+	/**
+	 * Reads the names of the skills of one skills folder: one name for each folder that holds a `SKILL.md` file.
+	 *
+	 * @param skillsFolderPath The folder that holds one folder for each skill.
+	 * @returns The names of the skills.
+	 */
+	static readSkillNames(skillsFolderPath: string): string[] {
+		return Fs.readdirSync(skillsFolderPath, {
+			withFileTypes: true,
+		}).filter((entry) => {
+			return entry.isDirectory() === true
+				&& Fs.existsSync(Path.join(skillsFolderPath, entry.name, 'SKILL.md')) === true;
+		}).map((entry) => entry.name);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -130,14 +152,17 @@ export class OproWorkspaceFolder {
 	}
 
 	/**
-	 * Starts the git repository of the recipe, with one commit of every copied file, and the branch of the test case.
+	 * Starts the git repository of the recipe, writes each commit of the recipe, and checks out the branch of the
+	 * test case.
 	 *
+	 * @param targetFolderPath The folder of the target skill.
 	 * @param oproTargetFile The target file.
 	 * @param projectFolderPath The folder of the project.
 	 * @param testCase The test case, which gives the branch name.
 	 * @returns Nothing.
 	 */
-	static _startGitRepository(
+	static _writeCommits(
+		targetFolderPath: string,
 		oproTargetFile: OproTargetFile,
 		projectFolderPath: string,
 		testCase: TestCase,
@@ -146,21 +171,65 @@ export class OproWorkspaceFolder {
 		if (gitRepositoryRecipe === null) {
 			return;
 		}
-		const commitDate = gitRepositoryRecipe.commit_date;
+		const firstCommitTime = new Date(gitRepositoryRecipe.first_commit_date).getTime();
+		const commitDateOf = (commitIndex: number): string => {
+			const dayCount = gitRepositoryRecipe.day_count_between_commits * commitIndex;
+			return new Date(firstCommitTime + dayCount * DAY_MILLISECONDS).toISOString();
+		};
 		GitCommand.run(
 			projectFolderPath,
 			['init', '--quiet', '--initial-branch', gitRepositoryRecipe.initial_branch_name],
-			commitDate,
+			commitDateOf(0),
 		);
-		GitCommand.run(projectFolderPath, ['add', '--all'], commitDate);
-		GitCommand.run(
-			projectFolderPath,
-			['commit', '--quiet', '--message', gitRepositoryRecipe.first_commit_message],
-			commitDate,
-		);
+
+		const workspaceCommits = OproTargetFileReader.readWorkspaceCommits(
+			targetFolderPath, oproTargetFile.workspace_recipe);
+		let currentBranchName = gitRepositoryRecipe.initial_branch_name;
+		workspaceCommits.forEach((workspaceCommit, commitIndex) => {
+			const commitDate = commitDateOf(commitIndex);
+			if (workspaceCommit.branch_name !== currentBranchName) {
+				GitCommand.run(
+					projectFolderPath,
+					['switch', '--quiet', '--create', workspaceCommit.branch_name],
+					commitDate,
+				);
+				currentBranchName = workspaceCommit.branch_name;
+			}
+			OproWorkspaceFolder._writeCommitFiles(projectFolderPath, workspaceCommit);
+			GitCommand.run(projectFolderPath, ['add', '--all'], commitDate);
+			GitCommand.run(projectFolderPath, ['commit', '--quiet', '--message', workspaceCommit.message], commitDate);
+			if (workspaceCommit.tag_name !== null) {
+				GitCommand.run(projectFolderPath, ['tag', workspaceCommit.tag_name], commitDate);
+			}
+		});
+
 		const branchName = testCase.branch_name;
-		if (branchName !== null && branchName !== gitRepositoryRecipe.initial_branch_name) {
-			GitCommand.run(projectFolderPath, ['switch', '--quiet', '--create', branchName], commitDate);
+		if (branchName !== null && branchName !== currentBranchName) {
+			GitCommand.run(
+				projectFolderPath,
+				['switch', '--quiet', '--create', branchName],
+				commitDateOf(workspaceCommits.length),
+			);
+		}
+	}
+
+	/**
+	 * Writes the files of one commit of the recipe.
+	 *
+	 * @param projectFolderPath The folder of the project.
+	 * @param workspaceCommit The commit.
+	 * @returns Nothing.
+	 */
+	static _writeCommitFiles(projectFolderPath: string, workspaceCommit: WorkspaceCommit): void {
+		if (workspaceCommit.files === null) {
+			return;
+		}
+		for (const [filePath, fileText] of Object.entries(workspaceCommit.files)) {
+			const absoluteFilePath = Path.join(projectFolderPath, filePath);
+			Fs.mkdirSync(Path.dirname(absoluteFilePath), {
+				recursive: true,
+			});
+			Fs.writeFileSync(absoluteFilePath, fileText);
 		}
 	}
 
@@ -241,6 +310,6 @@ export class OproWorkspaceFolder {
 		if (gitRepositoryRecipe === null || gitRepositoryRecipe.stage_file_changes === false) {
 			return;
 		}
-		GitCommand.run(projectFolderPath, ['add', '--all'], gitRepositoryRecipe.commit_date);
+		GitCommand.run(projectFolderPath, ['add', '--all'], gitRepositoryRecipe.first_commit_date);
 	}
 }

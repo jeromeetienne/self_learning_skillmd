@@ -1,0 +1,33 @@
+{
+	"target_skill_name": "release-notes",
+	"skill_part_name": "description",
+	"skills_folder_path": "dotagents_folder/skills",
+	"test_explanation_file_path": "test_explanation.md",
+	"run_mode": "skill_choice",
+	"user_message_template": "{{user_message}}",
+	"claude_allowed_tool_names": [],
+	"timeout_milliseconds": 180000,
+	"workspace_recipe": {
+		"copy_folder_path": null,
+		"git_repository": {
+			"initial_branch_name": "main",
+			"first_commit_date": "2026-06-01T10:00:00.000Z",
+			"day_count_between_commits": 3,
+			"commits_file_path": "workspace_commits.json",
+			"stage_file_changes": false
+		}
+	},
+	"rules": [
+		{
+			"name": "expected_skill",
+			"checks": [
+				{
+					"kind": "expected_answer",
+					"expected_field": "expected_skill_name",
+					"failure_message": "the expected skill was {{expected_skill_name}}"
+				}
+			]
+		}
+	],
+	"judge": null
+}

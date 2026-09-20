@@ -10,10 +10,11 @@ Holds one folder for each test skill: the skills that OPRO improves, the test ca
 - `simplified_technical_english_rewrite/`: the Simplified Technical English rewrite test, which scores the body of `simplified-technical-english-rewrite` with four rules checked by code and one rule checked by a judge — see its CONTEXT.md.
 
 ## Rules
-- Each test skill folder holds the same three parts, and can hold more, such as `base_project/`:
+- Each test skill folder holds the same parts, and can hold more, such as `base_project/`:
   - `dotagents_folder/skills/<skill-name>/SKILL.md`: the skills of the test.
   - `playground/`: holds only the links `.claude` and `.agents`, both to `../dotagents_folder`. A person starts `claude` or `codex` in `playground/` to watch the skills live.
   - `test_cases.json`: the test cases and their expected answers.
+  - `opro_target.json`, `test_explanation.md`, and, for a test skill with a judge, `judge_rubric.md`: the data files that the OPRO optimizer skill reads, in place of the code of `src/`. Their format is in [opro_skill/references/target_folder_format.md](../opro_skill/references/target_folder_format.md).
 - A scoring script never runs a harness inside this repository. It copies the skills into a temporary folder outside the repository, which is a small git repository of its own, and runs the harness there, because an agent in `playground/` reads `../test_cases.json`.
 - Codex runs only `gpt-5.6-luna`, and Claude Code runs only `claude-sonnet-5`. A scoring script always passes the model, and no option changes it.
 - A test skill imports the generic code from `_shared/`, never from another test skill.

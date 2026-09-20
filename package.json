@@ -7,6 +7,7 @@
 		"score_the_commit_message": "tsx test_skills/commit_message/src/score_the_commit_message.ts",
 		"score_the_simplified_technical_english_rewrite": "tsx test_skills/simplified_technical_english_rewrite/src/score_the_simplified_technical_english_rewrite.ts",
 		"run_opro": "tsx opro/src/run_opro.ts",
+		"compare_converted_rules": "tsx scripts/compare_converted_rules.ts",
 		"copy_opro_results_to_test_example_results": "mkdir -p test_example_results && cp -R outputs/opro/. test_example_results/",
 		"typecheck": "tsc"
 	},

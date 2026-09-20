@@ -5,6 +5,7 @@ The OPRO optimizer skill: the `SKILL.md` file that a person installs in Claude C
 
 ## Key Exports & Entry Points
 - `milestone_0/`: the smallest version of the OPRO optimizer skill, which proves that a harness can run the OPRO loop inside itself — see its own [CONTEXT.md](milestone_0/CONTEXT.md).
+- `references/`: the reference files that the `SKILL.md` file links, such as the format of the folder of a target skill — see its own [CONTEXT.md](references/CONTEXT.md).
 
 ## Rules
 - A skill of this folder holds no code. Every step that needs code runs with `npx skillmd_opro_tools <tool name> ...` — see [opro_tools/CONTEXT.md](../opro_tools/CONTEXT.md).

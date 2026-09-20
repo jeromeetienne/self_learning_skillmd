@@ -1,0 +1,273 @@
+{
+	"target_skill_name": "simplified-technical-english-rewrite",
+	"skill_part_name": "body",
+	"skills_folder_path": "dotagents_folder/skills",
+	"test_explanation_file_path": "test_explanation.md",
+	"run_mode": "answer",
+	"user_message_template": "Use the simplified-technical-english-rewrite skill to rewrite the text below. Do not change any file. Reply with the rewritten text only.\n\n{{source_text}}",
+	"answer_extraction": "first_code_block_or_whole_answer",
+	"trim_line_ends": false,
+	"claude_allowed_tool_names": [
+		"Skill",
+		"Read",
+		"Glob"
+	],
+	"timeout_milliseconds": 300000,
+	"workspace_recipe": {
+		"copy_folder_path": null,
+		"git_repository": {
+			"initial_branch_name": "main",
+			"first_commit_date": "2026-06-10T10:00:00.000Z",
+			"day_count_between_commits": 0,
+			"commits": [],
+			"stage_file_changes": false
+		}
+	},
+	"rules": [
+		{
+			"name": "sentence_length",
+			"checks": [
+				{
+					"kind": "maximum_sentence_word_count",
+					"remove_code": true,
+					"maximum": 20
+				}
+			]
+		},
+		{
+			"name": "no_abbreviation",
+			"checks": [
+				{
+					"kind": "refused_patterns",
+					"remove_code": true,
+					"patterns": [
+						{
+							"kind": "regular_expression",
+							"value": "\\b[A-Z]{2,}s?\\b",
+							"flags": ""
+						},
+						{
+							"kind": "regular_expression",
+							"value": "(?<![\\w.])(?:e\\.g|i\\.e|etc|vs|approx|a\\.m|p\\.m)\\.",
+							"flags": "i"
+						},
+						{
+							"kind": "regular_expression",
+							"value": "(?<![\\w./-])(?:configs|admins|config|stderr|stdout|admin|repos|specs|stats|stdin|apps|auth|deps|devs|dirs|docs|envs|info|libs|prod|repo|spec|temp|vars|app|dbs|dep|dev|dir|doc|env|lib|max|min|ops|sec|var|db)(?![\\w/-])",
+							"flags": "i"
+						},
+						{
+							"kind": "regular_expression",
+							"value": "\\b\\w+(?:n['’]t|['’]re|['’]ve|['’]ll|['’]m|['’]d)\\b|\\b(?:it|that|there|what|here|let|who|where)['’]s\\b",
+							"flags": "i"
+						}
+					],
+					"allowed_words": [
+						"CODEPLACEHOLDER",
+						"OK"
+					],
+					"failure_message": null
+				}
+			]
+		},
+		{
+			"name": "no_you",
+			"checks": [
+				{
+					"kind": "refused_patterns",
+					"remove_code": true,
+					"patterns": [
+						{
+							"kind": "regular_expression",
+							"value": "\\b(?:you|your|yours|yourself|yourselves)\\b",
+							"flags": "i"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "refused_words",
+			"checks": [
+				{
+					"kind": "refused_patterns",
+					"remove_code": true,
+					"patterns": [
+						{
+							"kind": "word",
+							"value": "utilize",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "utilise",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "leverage",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "ensure",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "perform",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "performs",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "performed",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "via",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "whether",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "facilitate",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "approximately",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "numerous",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "additional",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "subsequent",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "subsequently",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "prior",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "commence",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "terminate",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "obtain",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "may",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "might",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "could",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "would",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "should",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "very",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "really",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "basically",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "simply",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "just",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "please",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "bunch",
+							"flags": "i"
+						},
+						{
+							"kind": "word",
+							"value": "in order to",
+							"flags": "i"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "meaning_kept",
+			"checks": [
+				{
+					"kind": "judge"
+				}
+			]
+		}
+	],
+	"judge": {
+		"rubric_file_path": "judge_rubric.md",
+		"timeout_milliseconds": 300000
+	}
+}

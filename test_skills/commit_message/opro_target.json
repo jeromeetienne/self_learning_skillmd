@@ -2,7 +2,11 @@
 	"target_skill_name": "commit-message",
 	"skill_part_name": "body",
 	"skills_folder_path": "dotagents_folder/skills",
-	"user_message_prefix": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.",
+	"test_explanation_file_path": "test_explanation.md",
+	"run_mode": "answer",
+	"user_message_template": "Use the commit-message skill to write the commit message for the staged changes. Do not run git commit, and do not change any file. Reply with the commit message only.\n\n{{user_message}}",
+	"answer_extraction": "first_code_block_or_whole_answer",
+	"trim_line_ends": true,
 	"claude_allowed_tool_names": [
 		"Skill",
 		"Read",
@@ -18,9 +22,115 @@
 		"copy_folder_path": "base_project",
 		"git_repository": {
 			"initial_branch_name": "main",
-			"first_commit_message": "Create todo-cli with the add, done, delete, and list commands",
-			"commit_date": "2026-06-10T10:00:00.000Z",
+			"first_commit_date": "2026-06-10T10:00:00.000Z",
+			"day_count_between_commits": 0,
+			"commits": [
+				{
+					"branch_name": "main",
+					"message": "Create todo-cli with the add, done, delete, and list commands",
+					"files": null,
+					"tag_name": null
+				}
+			],
 			"stage_file_changes": true
 		}
-	}
+	},
+	"rules": [
+		{
+			"name": "conventional_type",
+			"checks": [
+				{
+					"kind": "regular_expression_must_match",
+					"scope": "first_line",
+					"pattern": "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\\([^)]+\\))?!?: \\S",
+					"failure_message": "the first line does not start with a type such as \"feat: \" or \"fix: \""
+				}
+			]
+		},
+		{
+			"name": "first_line_length",
+			"checks": [
+				{
+					"kind": "maximum_line_length",
+					"scope": "first_line",
+					"maximum": 50
+				}
+			]
+		},
+		{
+			"name": "issue_suffix",
+			"checks": [
+				{
+					"when": [
+						{
+							"field": "issue_number",
+							"operator": "is_null"
+						}
+					],
+					"kind": "regular_expression_must_not_match",
+					"scope": "whole",
+					"pattern": "#\\d+",
+					"failure_message": "the change has no issue, but the commit message names one"
+				},
+				{
+					"kind": "regular_expression_must_match",
+					"scope": "first_line",
+					"pattern": ", #{{issue_number}}$",
+					"failure_message": "the first line does not end with \", #{{issue_number}}\""
+				}
+			]
+		},
+		{
+			"name": "why_line",
+			"checks": [
+				{
+					"kind": "regular_expression_must_match",
+					"scope": "whole",
+					"pattern": "^[^\\n]*\\n\\nWhy: ",
+					"failure_message": "the second line is not blank, or the third line does not start with \"Why: \""
+				}
+			]
+		},
+		{
+			"name": "fixes_last_line",
+			"checks": [
+				{
+					"when": [
+						{
+							"field": "is_fix",
+							"operator": "equals",
+							"value": true
+						},
+						{
+							"field": "issue_number",
+							"operator": "is_not_null"
+						}
+					],
+					"kind": "regular_expression_must_match",
+					"scope": "whole",
+					"pattern": "\\nfixes #{{issue_number}}$",
+					"failure_message": "the change fixes the issue #{{issue_number}}, but the last line is not \"fixes #{{issue_number}}\""
+				},
+				{
+					"kind": "regular_expression_must_not_match",
+					"scope": "whole",
+					"pattern": "\\b(close[sd]?|fix(e[sd])?|resolve[sd]?)\\s*:?\\s+#\\d+",
+					"flags": "i",
+					"failure_message": "the change closes no issue, but the commit message says that it closes one"
+				}
+			]
+		},
+		{
+			"name": "no_attribution",
+			"checks": [
+				{
+					"kind": "regular_expression_must_not_match",
+					"scope": "whole",
+					"pattern": "co-authored-by|generated with|\\bclaude\\b|\\bcodex\\b|anthropic|openai",
+					"flags": "i"
+				}
+			]
+		}
+	],
+	"judge": null
 }
