@@ -7,6 +7,7 @@ Holds one folder for each test skill: the skills that OPRO improves, the test ca
 - `_shared/`: the code that every test skill uses: the harnesses, their fixed models, and git — see `_shared/src/CONTEXT.md`.
 - `skill_choice/`: the skill choice test, which scores the `description` field of `release-notes` — see its CONTEXT.md.
 - `commit_message/`: the commit message test, which scores the body of `commit-message` with six rules checked by code — see its CONTEXT.md.
+- `python_docstring/`: the Python docstring test, which scores the body of `python-docstring` with eight rules, and which holds no code at all — see its CONTEXT.md.
 - `simplified_technical_english_rewrite/`: the Simplified Technical English rewrite test, which scores the body of `simplified-technical-english-rewrite` with four rules checked by code and one rule checked by a judge — see its CONTEXT.md.
 
 ## Rules

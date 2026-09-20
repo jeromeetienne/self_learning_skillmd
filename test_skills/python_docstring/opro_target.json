@@ -1,0 +1,141 @@
+{
+	"target_skill_name": "python-docstring",
+	"skill_part_name": "body",
+	"skills_folder_path": "dotagents_folder/skills",
+	"test_explanation_file_path": "test_explanation.md",
+	"run_mode": "answer",
+	"user_message_template": "Use the python-docstring skill to write the docstring of the function below. Do not change any file. Reply with the docstring only.\n\n```python\n{{function_code}}\n```",
+	"answer_extraction": "first_code_block_or_whole_answer",
+	"trim_line_ends": true,
+	"claude_allowed_tool_names": [
+		"Skill",
+		"Read",
+		"Glob"
+	],
+	"timeout_milliseconds": 300000,
+	"workspace_recipe": {
+		"copy_folder_path": null,
+		"git_repository": {
+			"initial_branch_name": "main",
+			"first_commit_date": "2026-06-10T10:00:00.000Z",
+			"day_count_between_commits": 0,
+			"commits": [],
+			"stage_file_changes": false
+		}
+	},
+	"rules": [
+		{
+			"name": "triple_quotes",
+			"checks": [
+				{
+					"kind": "regular_expression_must_match",
+					"pattern": "^\"\"\"[\\s\\S]*\"\"\"$",
+					"failure_message": "the answer does not start and end with three double quotes"
+				}
+			]
+		},
+		{
+			"name": "summary_line",
+			"checks": [
+				{
+					"kind": "regular_expression_must_match",
+					"scope": "first_line",
+					"pattern": "^\"\"\"[A-Z][^\\n]*\\.$",
+					"failure_message": "the first line is not three double quotes, then a capital letter, then one sentence that ends with a period"
+				}
+			]
+		},
+		{
+			"name": "args_section",
+			"checks": [
+				{
+					"kind": "regular_expression_must_match",
+					"pattern": "^\\s*Args:\\s*$",
+					"failure_message": "the docstring holds no line \"Args:\"",
+					"flags": "m"
+				}
+			]
+		},
+		{
+			"name": "first_parameter_named",
+			"checks": [
+				{
+					"kind": "regular_expression_must_match",
+					"pattern": "^\\s*{{first_parameter}}:\\s+\\S",
+					"failure_message": "the section Args: holds no line \"{{first_parameter}}: \" with an explanation",
+					"flags": "m"
+				}
+			]
+		},
+		{
+			"name": "returns_section",
+			"checks": [
+				{
+					"when": [
+						{
+							"field": "has_return",
+							"operator": "equals",
+							"value": true
+						}
+					],
+					"kind": "regular_expression_must_match",
+					"pattern": "^\\s*Returns:\\s*$",
+					"failure_message": "the function returns a value, and the docstring holds no line \"Returns:\"",
+					"flags": "m"
+				},
+				{
+					"kind": "regular_expression_must_not_match",
+					"pattern": "^\\s*Returns:",
+					"failure_message": "the function returns no value, and the docstring holds a line \"Returns:\"",
+					"flags": "m"
+				}
+			]
+		},
+		{
+			"name": "raises_section",
+			"checks": [
+				{
+					"when": [
+						{
+							"field": "raises_error",
+							"operator": "equals",
+							"value": true
+						}
+					],
+					"kind": "regular_expression_must_match",
+					"pattern": "^\\s*Raises:\\s*$",
+					"failure_message": "the function raises an error, and the docstring holds no line \"Raises:\"",
+					"flags": "m"
+				},
+				{
+					"kind": "regular_expression_must_not_match",
+					"pattern": "^\\s*Raises:",
+					"failure_message": "the function raises no error, and the docstring holds a line \"Raises:\"",
+					"flags": "m"
+				}
+			]
+		},
+		{
+			"name": "line_length",
+			"checks": [
+				{
+					"kind": "maximum_line_length",
+					"maximum": 88
+				}
+			]
+		},
+		{
+			"name": "no_this_function",
+			"checks": [
+				{
+					"kind": "regular_expression_must_not_match",
+					"pattern": "this function",
+					"flags": "i",
+					"failure_message": "the docstring holds the words \"this function\""
+				}
+			]
+		}
+	],
+	"judge": null,
+	"score_noise_percent": null
+}

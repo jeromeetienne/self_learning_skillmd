@@ -1,0 +1,165 @@
+{
+	"target_skill_name": "python-docstring",
+	"test_cases": [
+		{
+			"id": "return_01",
+			"split": "optimization",
+			"function_code": "def total_price(items, tax_rate):\n\tsubtotal = sum(item.price for item in items)\n\treturn subtotal * (1 + tax_rate)",
+			"first_parameter": "items",
+			"has_return": true,
+			"raises_error": false
+		},
+		{
+			"id": "return_02",
+			"split": "optimization",
+			"function_code": "def slugify(title):\n\treturn title.strip().lower().replace(' ', '-')",
+			"first_parameter": "title",
+			"has_return": true,
+			"raises_error": false
+		},
+		{
+			"id": "return_03",
+			"split": "optimization",
+			"function_code": "def count_words(text, separator=' '):\n\treturn len([word for word in text.split(separator) if word != ''])",
+			"first_parameter": "text",
+			"has_return": true,
+			"raises_error": false
+		},
+		{
+			"id": "return_04",
+			"split": "optimization",
+			"function_code": "def find_user(users, email):\n\tfor user in users:\n\t\tif user['email'] == email:\n\t\t\treturn user\n\treturn None",
+			"first_parameter": "users",
+			"has_return": true,
+			"raises_error": false
+		},
+		{
+			"id": "return_05",
+			"split": "optimization",
+			"function_code": "def merge_settings(defaults, overrides):\n\tmerged = dict(defaults)\n\tmerged.update(overrides)\n\treturn merged",
+			"first_parameter": "defaults",
+			"has_return": true,
+			"raises_error": false
+		},
+		{
+			"id": "void_01",
+			"split": "optimization",
+			"function_code": "def write_report(report, output_path):\n\twith open(output_path, 'w') as output_file:\n\t\toutput_file.write(report)",
+			"first_parameter": "report",
+			"has_return": false,
+			"raises_error": false
+		},
+		{
+			"id": "void_02",
+			"split": "optimization",
+			"function_code": "def log_event(logger, event_name, payload):\n\tlogger.info('%s %s', event_name, payload)",
+			"first_parameter": "logger",
+			"has_return": false,
+			"raises_error": false
+		},
+		{
+			"id": "void_03",
+			"split": "optimization",
+			"function_code": "def reset_counters(counters):\n\tfor key in counters:\n\t\tcounters[key] = 0",
+			"first_parameter": "counters",
+			"has_return": false,
+			"raises_error": false
+		},
+		{
+			"id": "raises_01",
+			"split": "optimization",
+			"function_code": "def parse_port(text):\n\tport = int(text)\n\tif port < 1 or port > 65535:\n\t\traise ValueError('the port is outside 1 to 65535')\n\treturn port",
+			"first_parameter": "text",
+			"has_return": true,
+			"raises_error": true
+		},
+		{
+			"id": "raises_02",
+			"split": "optimization",
+			"function_code": "def read_config(config_path):\n\tif not config_path.exists():\n\t\traise FileNotFoundError(config_path)\n\treturn config_path.read_text()",
+			"first_parameter": "config_path",
+			"has_return": true,
+			"raises_error": true
+		},
+		{
+			"id": "raises_03",
+			"split": "optimization",
+			"function_code": "def divide(numerator, denominator):\n\tif denominator == 0:\n\t\traise ZeroDivisionError('the denominator is zero')\n\treturn numerator / denominator",
+			"first_parameter": "numerator",
+			"has_return": true,
+			"raises_error": true
+		},
+		{
+			"id": "raises_04",
+			"split": "optimization",
+			"function_code": "def delete_record(table, record_id):\n\tif record_id not in table:\n\t\traise KeyError(record_id)\n\tdel table[record_id]",
+			"first_parameter": "table",
+			"has_return": false,
+			"raises_error": true
+		},
+		{
+			"id": "long_01",
+			"split": "optimization",
+			"function_code": "def build_query(table_name, filters, order_by=None, limit=None):\n\tquery = f'SELECT * FROM {table_name}'\n\tif filters:\n\t\tquery += ' WHERE ' + ' AND '.join(filters)\n\tif order_by is not None:\n\t\tquery += f' ORDER BY {order_by}'\n\tif limit is not None:\n\t\tquery += f' LIMIT {limit}'\n\treturn query",
+			"first_parameter": "table_name",
+			"has_return": true,
+			"raises_error": false
+		},
+		{
+			"id": "long_02",
+			"split": "optimization",
+			"function_code": "def retry(call, attempt_count=3, delay_seconds=1.0):\n\tfor attempt in range(attempt_count):\n\t\ttry:\n\t\t\treturn call()\n\t\texcept ConnectionError:\n\t\t\tif attempt == attempt_count - 1:\n\t\t\t\traise\n\t\t\ttime.sleep(delay_seconds)",
+			"first_parameter": "call",
+			"has_return": true,
+			"raises_error": true
+		},
+		{
+			"id": "long_03",
+			"split": "optimization",
+			"function_code": "def group_by_day(events, timezone_name):\n\tgrouped = {}\n\tfor event in events:\n\t\tday = event.timestamp.astimezone(timezone_name).date()\n\t\tgrouped.setdefault(day, []).append(event)\n\treturn grouped",
+			"first_parameter": "events",
+			"has_return": true,
+			"raises_error": false
+		},
+		{
+			"id": "final_01",
+			"split": "final_check",
+			"function_code": "def average_latency(samples):\n\tif not samples:\n\t\treturn 0.0\n\treturn sum(samples) / len(samples)",
+			"first_parameter": "samples",
+			"has_return": true,
+			"raises_error": false
+		},
+		{
+			"id": "final_02",
+			"split": "final_check",
+			"function_code": "def send_invitation(mailer, address, template_name):\n\tmailer.send(address, template_name)",
+			"first_parameter": "mailer",
+			"has_return": false,
+			"raises_error": false
+		},
+		{
+			"id": "final_03",
+			"split": "final_check",
+			"function_code": "def load_token(store, key_name):\n\ttoken = store.get(key_name)\n\tif token is None:\n\t\traise LookupError(key_name)\n\treturn token",
+			"first_parameter": "store",
+			"has_return": true,
+			"raises_error": true
+		},
+		{
+			"id": "final_04",
+			"split": "final_check",
+			"function_code": "def normalise_headers(headers):\n\treturn {name.lower(): value for name, value in headers.items()}",
+			"first_parameter": "headers",
+			"has_return": true,
+			"raises_error": false
+		},
+		{
+			"id": "final_05",
+			"split": "final_check",
+			"function_code": "def rotate_log(log_path, keep_count=5):\n\tfor index in range(keep_count - 1, 0, -1):\n\t\tolder = log_path.with_suffix(f'.{index}')\n\t\tif older.exists():\n\t\t\tolder.rename(log_path.with_suffix(f'.{index + 1}'))",
+			"first_parameter": "log_path",
+			"has_return": false,
+			"raises_error": false
+		}
+	]
+}
