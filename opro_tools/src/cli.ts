@@ -592,6 +592,9 @@ export class OproToolsCli {
 		OproToolsCli._printJson({
 			run_record_file_path: Path.join(runFolderPath, 'opro_run.json'),
 			best_version_number: runRecord.best_version_number,
+			total_harness_run_count: runRecord.versions.reduce((total, versionRecord) => {
+				return total + versionRecord.harness_run_count;
+			}, 0),
 			versions: runRecord.versions.map((versionRecord) => {
 				return {
 					version_number: versionRecord.version_number,
