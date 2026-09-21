@@ -137,5 +137,5 @@
 		}
 	],
 	"judge": null,
-	"score_noise_percent": null
+	"score_noise_percent": 10.5
 }
