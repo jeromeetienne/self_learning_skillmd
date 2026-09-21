@@ -17,12 +17,6 @@
 		"skipLibCheck": true
 	},
 	"include": [
-		"test_skills/**/*.ts",
-		"opro/**/*.ts",
-		"opro_tools/**/*.ts",
-		"scripts/**/*.ts"
-	],
-	"exclude": [
-		"test_skills/*/base_project/**"
+		"opro_tools/**/*.ts"
 	]
 }

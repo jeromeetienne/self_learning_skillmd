@@ -8,7 +8,6 @@ The commit message test: it scores the body of the `commit-message` skill by che
 - `base_project/`: the files of the small project `todo-cli`, before the change of a test case.
 - `playground/`: start `claude` or `codex` here to see the skill live.
 - `test_cases.json`: 20 changes to stage, each with its branch, its user message, its issue number, and whether the change is a fix.
-- `src/`: the scoring script of the test — see its CONTEXT.md.
 - `README.md`: the rules, how to run the test, and its results.
 
 ## Rules

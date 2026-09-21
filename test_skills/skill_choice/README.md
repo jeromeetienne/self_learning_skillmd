@@ -30,11 +30,11 @@ Without neighbors, a vague description that takes every message would get a perf
 
 ## How the score works
 
-1. The script copies the skills into a temporary folder outside this repository. That folder is a small git repository of a project `todo-cli`, with tags and a current branch, like a real project.
-2. For each test case, the script starts the harness in that folder with the user message, 4 test cases at the same time:
+1. For each test case, `score-version` copies the skills into a temporary folder outside this repository. That folder is a small git repository of a project `todo-cli`, with tags and a current branch, like a real project.
+2. `score-version` starts the harness in that folder with the user message, 4 test cases at the same time:
    - Codex runs only `gpt-5.6-luna`.
    - Claude Code runs only `claude-sonnet-5`.
-3. The script stops the harness as soon as the choice is known:
+3. `score-version` stops the harness as soon as the choice is known:
    - The choice is the first test skill named in a path under a `skills/` folder, in a tool call or a shell command.
    - After 3 tool calls with no test skill, or when the harness ends its turn, the choice is no skill.
    - A skill that is not a test skill, such as a skill of the user, is never a choice.
@@ -45,20 +45,16 @@ Without neighbors, a vague description that takes every message would get a perf
 From the root of the repository:
 
 ```bash
-pnpm run score_the_skill_choice --harness codex
+npx skillmd_opro_tools score-version --harness codex --target-folder test_skills/skill_choice --skills-folder test_skills/skill_choice/dotagents_folder/skills --split optimization --output-file outputs/skill_choice/score.json
 ```
 
-Options:
-
-- `--harness <claude|codex>`: the harness that chooses the skills. Required.
-- `--split <optimization|final_check|all>`: the group of test cases to run. The default is `optimization`.
+- `--harness <claude|codex>`: the harness that runs the test cases. Required.
+- `--split <optimization|final_check>`: the group of test cases to run.
+- `--skills-folder <path>`: the skills to score, for example a version folder of an OPRO run.
 - `--test-case-ids <id...>`: run only these test cases.
-- `--skills-folder <path>`: score another skills folder, for example a folder that holds a new description.
-- `--concurrency <count>`: the number of harnesses that run at the same time. The default is 4.
+- `--concurrency <count>`: the number of test cases that run at the same time. The default is 4.
 
-Each run prints one line for each test case, and writes a score file into `outputs/skill_choice/`, which git ignores. The score file holds the evidence of each choice: the commands or the tool calls of the harness.
-
-The `claude` harness must run in a terminal of the user, because a Claude Code desktop session cannot start `claude`.
+The tool prints the score, the count of each rule, and the failures, and writes the whole score record into the output file. The score record holds the evidence of each choice: the commands or the tool calls of the harness.
 
 ## Watch it live
 

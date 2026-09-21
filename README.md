@@ -29,35 +29,35 @@ Each test skill starts weak on purpose, so that OPRO has room to improve it.
 1. **Skill choice.** Tests the `description` field. The target is `release-notes`, among four neighbor skills. The score is the percentage of user messages for which the model chooses the correct skill.
 2. **Commit message.** Tests the body of a SKILL.md that has rules. The target is `commit-message`. Code checks six rules on the commit message that the harness writes for 20 staged changes.
 3. **Simplified Technical English rewrite.** Tests a style skill. The target is `simplified-technical-english-rewrite`. Code checks four rules on the rewrite of 20 paragraphs, such as the length of the sentences and the abbreviations, and a judge checks that the meaning did not change.
+4. **Python docstring.** Tests the body of a skill that writes the docstring of a Python function. The target is `python-docstring`. A person wrote this test skill with data files only, and no code of this repository is specific to it.
+
+Each test skill is a target folder: data files and text files only, which the generic tools read. The format is in [target_folder_format.md](opro_skill/skills/opro-optimizer/references/target_folder_format.md).
 
 ## OPRO results
 
-| Test skill | Best OPRO run: `final_check`, first version to best version | Details |
-|---|---|---|
-| Skill choice | no run yet | |
-| Commit message | 50 percent to 100 percent | [OPRO runs](test_skills/commit_message/README.md#opro-runs) |
-| Simplified Technical English rewrite | 68 percent to 88 percent, with 3 score runs for each version | [OPRO runs](test_skills/simplified_technical_english_rewrite/README.md#opro-runs) |
+The runs of the OPRO optimizer skill, in Codex with `gpt-5.6-luna`, from milestone 5 of [issue #4](https://github.com/jeromeetienne/skillmd_opro/issues/4#issuecomment-5759795431):
 
-In each run, OPRO found its big improvement in round 1. Later rounds did not beat it by more than the noise of the score.
+| Test skill | `final_check`, first version to best version | Harness runs |
+|---|---|---|
+| Skill choice | 100 percent, no improvement: the first version already scored 100 percent | 83 |
+| Commit message | 50 percent to 100 percent | 204 |
+| Simplified Technical English rewrite | 80 percent to 88 percent | 263 |
+| Python docstring | 62.5 percent to 100 percent | 149 |
+
+In each run, OPRO found its big improvement in the first rounds. Later rounds did not beat it by more than the noise of the score. The runs of the old TypeScript loop are in the "OPRO runs" section of the `README.md` file of each test skill.
 
 ## Layout
 
-- `opro/`: the OPRO loop, which improves the target skill of one test skill. See [opro/src/CONTEXT.md](opro/src/CONTEXT.md).
 - `opro_skill/`: the OPRO optimizer skill, the `SKILL.md` file that runs the OPRO loop inside the harness. See its [CONTEXT.md](opro_skill/CONTEXT.md).
 - `opro_tools/`: the npm package `skillmd_opro_tools`, the generic tools that the OPRO optimizer skill runs with `npx`. See its [CONTEXT.md](opro_tools/CONTEXT.md).
-- `test_example_results/`: a copy of the run folders of the OPRO runs of the "OPRO results" section, with every version and every score file.
+- `test_example_results/`: the run folders of the runs of the old TypeScript loop, which milestone 6 of issue #4 deleted, with every version and every score file.
 - `test_skills/`: one folder for each test skill, with its skills, its test cases, and a `playground/` folder where you start `claude` or `codex`. See its [CONTEXT.md](test_skills/CONTEXT.md).
 
 ## Commands
 
 - `pnpm install`: installs the packages.
-- `pnpm run score_the_skill_choice --harness <claude|codex>`: scores the skill choice test. See [test_skills/skill_choice/src/CONTEXT.md](test_skills/skill_choice/src/CONTEXT.md).
-- `pnpm run score_the_commit_message --harness <claude|codex>`: scores the commit message test. See [test_skills/commit_message/src/CONTEXT.md](test_skills/commit_message/src/CONTEXT.md).
-- `pnpm run score_the_simplified_technical_english_rewrite --harness <claude|codex>`: scores the Simplified Technical English rewrite test. See [test_skills/simplified_technical_english_rewrite/src/CONTEXT.md](test_skills/simplified_technical_english_rewrite/src/CONTEXT.md).
-- `pnpm run run_opro --test-skill <test skill name> --harness <claude|codex>`: runs the OPRO loop on one test skill. See [opro/src/CONTEXT.md](opro/src/CONTEXT.md).
-- `npx skillmd_opro_tools <tool name> ...`: runs one generic tool of the OPRO optimizer skill. See [opro_tools/src/CONTEXT.md](opro_tools/src/CONTEXT.md).
-- `pnpm run compare_converted_rules`: checks that the rules as data give the same verdict as the code that they replace. See [scripts/CONTEXT.md](scripts/CONTEXT.md).
-- `pnpm run copy_opro_results_to_test_example_results`: copies every run folder of `outputs/opro/` into `test_example_results/`, so that git keeps them.
+- `npx skillmd_opro_tools score-version --harness <claude|codex> --target-folder test_skills/<test skill name> --skills-folder test_skills/<test skill name>/dotagents_folder/skills --split optimization --output-file <path>`: scores one test skill. See [opro_tools/src/CONTEXT.md](opro_tools/src/CONTEXT.md).
+- To run the OPRO loop, start `claude` or `codex` in `opro_skill/playground/`, and ask it to run the `opro-optimizer` skill. See [opro_skill/playground/CONTEXT.md](opro_skill/playground/CONTEXT.md).
 - `pnpm run typecheck`: checks the types.
 
 ## Rules

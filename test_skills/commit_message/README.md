@@ -39,8 +39,8 @@ The user message of a test case gives only the facts, and never names a rule. Th
 
 ## How the score works
 
-1. For each test case, the script creates a temporary folder outside this repository: `base_project/` in a git repository with one commit, the change of the test case in the index of git, and a copy of the skills.
-2. The script starts the harness in that folder, 4 test cases at the same time:
+1. For each test case, `score-version` creates a temporary folder outside this repository: `base_project/` in a git repository with one commit, the change of the test case in the index of git, and a copy of the skills.
+2. `score-version` starts the harness in that folder, 4 test cases at the same time:
    - Codex runs only `gpt-5.6-luna`, in a read-only sandbox.
    - Claude Code runs only `claude-sonnet-5`, and may call only the tools that read the skill and git.
 3. The user message asks the harness to use the `commit-message` skill, to write the commit message for the staged changes, and to reply with the commit message only. The user message of the test case comes after it.
@@ -52,14 +52,16 @@ The user message of a test case gives only the facts, and never names a rule. Th
 From the root of the repository:
 
 ```bash
-pnpm run score_the_commit_message --harness codex
+npx skillmd_opro_tools score-version --harness codex --target-folder test_skills/commit_message --skills-folder test_skills/commit_message/dotagents_folder/skills --split optimization --output-file outputs/commit_message/score.json
 ```
 
-The options are the same as for the skill choice test: `--harness`, `--split`, `--test-case-ids`, `--skills-folder`, and `--concurrency`.
+- `--harness <claude|codex>`: the harness that runs the test cases. Required.
+- `--split <optimization|final_check>`: the group of test cases to run.
+- `--skills-folder <path>`: the skills to score, for example a version folder of an OPRO run.
+- `--test-case-ids <id...>`: run only these test cases.
+- `--concurrency <count>`: the number of test cases that run at the same time. The default is 4.
 
-Each run prints one line for each test case with the reason of each failed rule, then the count of each rule. It writes a score file into `outputs/commit_message/`, which git ignores. The score file holds the last answer, the commit message, and the commands or the tool calls of each test case.
-
-The `claude` harness must run in a terminal of the user, because a Claude Code desktop session cannot start `claude`.
+The tool prints the score, the count of each rule, and the failures, and writes the whole score record into the output file. The score record holds the last answer, the commit message, and the commands or the tool calls of each test case.
 
 ## Watch it live
 

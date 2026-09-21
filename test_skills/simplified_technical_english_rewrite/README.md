@@ -18,7 +18,7 @@ Five rules are checked on each rewrite. Code checks the first four, and a judge 
 | `refused_words` | it has no word of the house list of refused words, such as `ensure`, `via`, `might`, `should`, or `in order to` |
 | `meaning_kept` | the judge says that it keeps every fact, number, condition, and instruction of the paragraph, and adds no fact. The judge accepts the replacements of the house style, such as "can" for "might", "must" or "we recommend" for "should", and "about" for "approximately" |
 
-Code in a code span or a code block is never checked. The house list of refused words is `REFUSED_WORDS` in `src/simplified_technical_english_rewrite_rules.ts`.
+Code in a code span or a code block is never checked. The house list of refused words is the rule `refused_words` in `opro_target.json`.
 
 ## The test cases
 
@@ -26,12 +26,12 @@ Code in a code span or a code block is never checked. The house list of refused 
 
 ## How the score works
 
-1. The script creates two temporary folders outside this repository, each an empty git repository: the rewrite folder, with a copy of the skills, and the judge folder, with no skill.
-2. For each test case, the script starts the harness in the rewrite folder, 4 test cases at the same time:
+1. For each test case, `score-version` creates a temporary folder outside this repository: an empty git repository with a copy of the skills.
+2. `score-version` starts the harness in that folder, 4 test cases at the same time:
    - Codex runs only `gpt-5.6-luna`, in a read-only sandbox.
    - Claude Code runs only `claude-sonnet-5`, and may call only the tools that read the skill.
 3. The user message asks the harness to use the skill, to rewrite the paragraph, and to reply with the rewritten text only.
-4. Code checks four rules on the rewrite. Then the same harness, with the same model, runs in the judge folder and says whether the rewrite keeps the meaning.
+4. Code checks four rules on the rewrite. Then the same harness, with the same model, runs in an empty git repository with no skill, and says whether the rewrite keeps the meaning.
 5. The score is the percentage of rule checks that pass: 5 rules for each of the 15 test cases, 75 checks.
 
 ## How to run it
@@ -39,14 +39,16 @@ Code in a code span or a code block is never checked. The house list of refused 
 From the root of the repository:
 
 ```bash
-pnpm run score_the_simplified_technical_english_rewrite --harness codex
+npx skillmd_opro_tools score-version --harness codex --target-folder test_skills/simplified_technical_english_rewrite --skills-folder test_skills/simplified_technical_english_rewrite/dotagents_folder/skills --split optimization --output-file outputs/simplified_technical_english_rewrite/score.json
 ```
 
-The options are the same as for the other tests: `--harness`, `--split`, `--test-case-ids`, `--skills-folder`, and `--concurrency`.
+- `--harness <claude|codex>`: the harness that runs the test cases. Required.
+- `--split <optimization|final_check>`: the group of test cases to run.
+- `--skills-folder <path>`: the skills to score, for example a version folder of an OPRO run.
+- `--test-case-ids <id...>`: run only these test cases.
+- `--concurrency <count>`: the number of test cases that run at the same time. The default is 4.
 
-Each run prints one line for each test case with the reason of each failed rule, then the count of each rule. It writes a score file into `outputs/simplified_technical_english_rewrite/`, which git ignores.
-
-The `claude` harness must run in a terminal of the user, because a Claude Code desktop session cannot start `claude`.
+The tool prints the score, the count of each rule, and the failures, and writes the whole score record into the output file.
 
 ## Watch it live
 

@@ -7,7 +7,6 @@ The Simplified Technical English rewrite test: it scores the body of the `simpli
 - `dotagents_folder/skills/simplified-technical-english-rewrite/SKILL.md`: the target, whose body OPRO improves.
 - `playground/`: start `claude` or `codex` here to see the skill live.
 - `test_cases.json`: 20 paragraphs of technical text to rewrite.
-- `src/`: the scoring script of the test — see its CONTEXT.md.
 - `README.md`: the rules, how to run the test, and its results.
 
 ## Rules
